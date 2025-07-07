@@ -1,0 +1,3 @@
+
+class WakeUpRadioModule:
+    pass

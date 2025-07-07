@@ -1,0 +1,3 @@
+
+class PrecomputationHelper:
+    pass
