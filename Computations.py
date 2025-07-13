@@ -1,6 +1,5 @@
 import math
 
-
 def compute_payload_size(payload: dict) -> int:
     payload_size: int = 0
     for value in payload.values():

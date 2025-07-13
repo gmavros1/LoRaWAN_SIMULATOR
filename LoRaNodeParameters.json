@@ -1,5 +1,6 @@
 {
-  "sf" : 12,
+  "id": 0,
+  "sf" : 8,
   "channel": 1,
   "bandwidth": 125,
   "PowerTX": 14,
