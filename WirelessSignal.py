@@ -8,3 +8,7 @@ class WirelessSignal:
         self.bandwidth = node.Bandwidth
         self.tx_power = node.PowerTX
         self.source_location = node.location
+
+        # Helpers during capture
+        self.rx_power = None
+        self.time_over_air_required =  None # How many ms is on air

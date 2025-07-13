@@ -15,7 +15,7 @@ class _PacketRecord:
     def tick(self) -> bool:
         """Decrease timer by one; return True if the packet is still alive."""
         self.toa_left -= 1
-        return self.toa_left > 0
+        return self.toa_left >= 0
 
 class Environment:
         """
@@ -39,11 +39,11 @@ class Environment:
         # ------------------------------------------------------------------
         def add_packet(self, signal: WirelessSignal) -> None:
             """Insert a new packet with its initial airtime budget (in ticks)."""
-            self._check_indices(signal.channel - 1, signal.sf - 6)
-            self.packet_over_air[signal.channel - 1][signal.sf - 6].append(
-                _PacketRecord(signal, Computations.toa(
-                    Computations.compute_payload_size(signal.lora_packet.Payload), signal.sf))
-            )
+            time_over_air_required: int = Computations.toa(
+                Computations.compute_payload_size(signal.lora_packet.Payload), signal.sf)
+            self._check_indices(signal.channel - 1, signal.sf - 7)
+            signal.time_over_air_required = time_over_air_required
+            self.packet_over_air[signal.channel - 1][signal.sf - 7].append(_PacketRecord(signal, time_over_air_required))
 
         def tick(self) -> None:
             """
@@ -78,9 +78,6 @@ class Environment:
         def __str__(self) -> str:
             return str(self.snapshot_remaining_toa())
 
-        # nice-to-have string representation
-        def __str__(self) -> str:
-            return str(self.snapshot_remaining_toa())
 
 
 

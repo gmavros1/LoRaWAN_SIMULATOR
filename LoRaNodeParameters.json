@@ -1,8 +1,12 @@
 {
-  "id": 0,
-  "sf" : 8,
+  "sf" : 7,
   "channel": 1,
   "bandwidth": 125,
   "PowerTX": 14,
-  "RSSI": -130
+  "RSSI_sf7": -123,
+  "RSSI_sf8": -126,
+  "RSSI_sf9": -129,
+  "RSSI_sf10": -132,
+  "RSSI_sf11": -134.5,
+  "RSSI_sf12": -137
 }

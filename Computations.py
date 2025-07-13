@@ -20,3 +20,33 @@ def toa(payload_size: int, sf: int, bw: int = 125, crc: int =1, header: int =0, 
     time_of_preamble = (n_preamble + 4.25) * time_of_symbol
 
     return time_of_preamble + time_of_payload
+
+def calculate_received_power(distance:float, transmission_power: int, shadowing_std_dev: float=6.0):
+    # Constants - sensors-22-03518-v3.pdf - reference
+    PLd0 = 37  # Reference path loss at the reference distance (d0)
+    d0 = 1.0  # Reference distance (1 meter)
+    alpha = 3.0  # Path loss exponent - (2-4) - urban enviroments ~ 3
+
+    # Calculate the path loss without shadowing
+    PL = PLd0 + 10 * alpha * math.log10(distance / d0)
+
+    # Generate a random value for shadowing
+    shadowing = shadowing_std_dev
+
+    # Calculate the total path loss with shadowing
+    PL += shadowing
+
+    # Receive power returned in dB
+    Pr = transmission_power - PL
+
+    return Pr
+
+
+def distance(location1, location2) -> float:
+    x1, y1, z1 = location1.x, location1.y, 0
+    x2, y2, z2 = location2.x, location2.y, 0
+
+    distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
+    return distance
+
+# print(calculate_received_power(2000, 14))
