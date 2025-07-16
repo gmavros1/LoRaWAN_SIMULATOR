@@ -1,48 +1,41 @@
-from LoRaModule import LoRaModule
-from WakeUpRadioModule import WakeUpRadioModule
+# from LoRaModule import LoRaModule
+# from WakeUpRadioModule import WakeUpRadioModule
+
+LORA_NODE_PARAMETERS = "./LoRaNodeParameters.json"
+WAKE_UP_RADIO_PARAMETERS = "./MangalKingetWuR.json"
+
 from signals import Location
 from Environment import Environment
+from SensorNode import SensorNode
 
 environment =  Environment()
 
-node1_location = Location(0, 50)
-node2_location = Location(0, 1200)
-node3_location = Location(0, 0)
+node1_location = Location(0, 0)
+node2_location = Location(0, 50)
+node3_location = Location(0, 1000)
 
+sensor_1 = SensorNode("1", WAKE_UP_RADIO_PARAMETERS, LORA_NODE_PARAMETERS, node1_location)
+sensor_2 = SensorNode("2", WAKE_UP_RADIO_PARAMETERS, LORA_NODE_PARAMETERS, node2_location)
+sensor_3 = SensorNode("3", WAKE_UP_RADIO_PARAMETERS, LORA_NODE_PARAMETERS, node3_location)
 
-node1 = LoRaModule("1", "./LoRaNodeParameters.json", node1_location)
-node1_wakeUp = WakeUpRadioModule("wakeUpTag1", "./MangalKingetWuR.json", node1_location)
-
-node2 = LoRaModule("2", "./LoRaNodeParameters.json", node2_location)
-node2_wakeUp = WakeUpRadioModule("wakeUpTag2", "./MangalKingetWuR.json", node2_location)
-
-node3 = LoRaModule("3", "./LoRaNodeParameters.json", node3_location)
-node3_wakeUp = WakeUpRadioModule("wakeUpTag3", "./MangalKingetWuR.json", node3_location)
-
-
-# Transmission
-payload = {"messages": "23f", "levelsource": "3"}
+payload = {"messages": "DUMMY PAYLOAD", "METRIC1": "TEMPERATURE=12C", "METRIC2": "HUMIDITY=34"}
 header = {"destination": "00000"}
-
-# node1.generate_packet(generation_time=0, payload= payload, header={"destination": "3"})
-# wireless_packet = node1.transmit_packet()
+#
+# sensor_1.lora.generate_packet(0, payload, header)
+# wireless_packet = sensor_1.lora.transmit_packet()
 # environment.add_packet(wireless_packet)
 #
-# node2.generate_packet(generation_time=0, payload= payload, header={"destination": "3"})
-# wireless_packet = node2.transmit_packet()
-# environment.add_packet(wireless_packet)
-
-node1_wakeUp.generate_beacon(0)
-wur_packet = node1_wakeUp.transmit_beacon()
-environment.add_wake_up_beacon(wur_packet)
+# sensor_2.wurx.generate_beacon(0)
+# wur_beacon = sensor_2.wurx.transmit_beacon()
+# environment.add_wake_up_beacon(wur_beacon)
 
 print(environment)
 
 simulation_time = 111
 for time_slot in range(simulation_time):
-    # node3.receive_packets_partial(environment)
-    node3_wakeUp.listen(environment)
+    # sensor_3.lora.receive_packets_partial(environment)
+    # sensor_1.wurx.listen(environment)
     environment.tick()
     print(environment)
 
-print(node2.RX_Buffer)
+# print(node2.RX_Buffer)
