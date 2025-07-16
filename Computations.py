@@ -26,16 +26,12 @@ def calculate_received_power(distance:float, transmission_power: int, shadowing_
     PLd0 = 37  # Reference path loss at the reference distance (d0)
     d0 = 1.0  # Reference distance (1 meter)
     alpha = 3.0  # Path loss exponent - (2-4) - urban enviroments ~ 3
-
     # Calculate the path loss without shadowing
     PL = PLd0 + 10 * alpha * math.log10(distance / d0)
-
     # Generate a random value for shadowing
     shadowing = shadowing_std_dev
-
     # Calculate the total path loss with shadowing
     PL += shadowing
-
     # Receive power returned in dB
     Pr = transmission_power - PL
 

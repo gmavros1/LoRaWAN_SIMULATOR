@@ -7,7 +7,7 @@ from typing import Dict, List
 import Computations
 from Environment import Environment
 from LoRaPacket import LoRaPacket
-from WirelessSignal import WirelessSignal
+from signals import LoRaWirelessSignal
 
 class Location:
     def __init__(self,x, y):
@@ -38,7 +38,7 @@ class LoRaModule:
         self.RSSI12: float = parameters["RSSI_sf12"]
 
         # Default
-        self.RSSI: float = parameters["RSSI_sf7"]
+        self.RSSI: float = self.RSSI7
 
     def generate_packet(self,generation_time: int, payload: dict, header: dict):
         header["source"] = self.ID # Define the source in header
@@ -46,12 +46,12 @@ class LoRaModule:
         self.TX_Buffer.append(new_packet)
 
     def transmit_packet(self):
-        wireless_lora_signal = WirelessSignal(self.TX_Buffer.pop(), self)
+        wireless_lora_signal = LoRaWirelessSignal(self.TX_Buffer.pop(), self)
         return wireless_lora_signal
 
 
     def receive_packets_partial(self, environment: Environment):
-         packets_in_channel_sf = environment.packet_over_air[self.Channel-1][self.SF-7].copy() # To have 1st index as 0
+         packets_in_channel_sf = environment.lora_packet_over_air[self.Channel - 1][self.SF - 7].copy() # To have 1st index as 0
          for i in range(len(packets_in_channel_sf)-1, -1, -1):
              rx_power = Computations.calculate_received_power(Computations.distance(
                  packets_in_channel_sf[i].signal.source_location, self.location),
@@ -68,7 +68,7 @@ class LoRaModule:
              return
          elif len(packets_in_channel_sf) == 1:
              self.RX_Buffer.append(packets_in_channel_sf[0].signal.lora_packet)
-             if packets_in_channel_sf[0].toa_left == 1:
+             if packets_in_channel_sf[0].toa_left == 0:
                  self.decode_packet(packets_in_channel_sf[0].signal.time_over_air_required)
          else:
              top_two = nlargest(2, packets_in_channel_sf, key=lambda p: p.signal.rx_power)
@@ -76,7 +76,7 @@ class LoRaModule:
              # capture effect (“capture margin” 6 dB)
              if top_two[0].signal.rx_power - top_two[1].signal.rx_power >= 6:
                  self.RX_Buffer.append(top_two[0].signal.lora_packet)
-                 if top_two[0].toa_left == 1:
+                 if top_two[0].toa_left == 0:
                     self.decode_packet(top_two[0].signal.time_over_air_required)
 
 
@@ -88,10 +88,10 @@ class LoRaModule:
 
         for pkt in dict(buckets).values():
             if segments_required - 1 < len(pkt) < segments_required + 1:
+                self.TX_Buffer.append(pkt) # STORE FOR FORWARD
                 print("SUCCESSFULLY DECODED")
             else:
                 print("DECODING ERROR")
 
         self.RX_Buffer = []
-
-
+        print(self.TX_Buffer)
