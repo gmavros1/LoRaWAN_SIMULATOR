@@ -1,8 +1,7 @@
 import json
 from collections import deque
-from signals import OOKRZWirelessSignal, Location, WakeUpBeacon
-import Computations
-
+from Wireless.signals import OOKRZWirelessSignal, Location, WakeUpBeacon
+from Utils import Computations
 
 
 class WakeUpRadioModule:
@@ -53,7 +52,8 @@ class WakeUpRadioModule:
         """
         beacons = environment.wur_packets_over_air
         for sig in beacons:
-            rx_power = Computations.calculate_received_power(Computations.distance(sig.signal.source_location, self.location), sig.signal.tx_power_dBm)
+            rx_power = Computations.calculate_received_power(
+                Computations.distance(sig.signal.source_location, self.location), sig.signal.tx_power_dBm)
             # check sensitivity
             if rx_power >= self.Sensitivity_dBm and sig.toa_left == self.Latency_ms:
                 # start / refresh latency counter

@@ -1,7 +1,6 @@
-from signals import LoRaWirelessSignal, OOKRZWirelessSignal
-import numpy as np
+from Wireless.signals import LoRaWirelessSignal, OOKRZWirelessSignal
 from typing import List
-import Computations
+from Utils import Computations
 
 N_CHANNELS = 9
 N_SF       = 6          # SF7–SF12

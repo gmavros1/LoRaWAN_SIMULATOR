@@ -1,4 +1,4 @@
-from LoRaPacket import LoRaPacket
+from Wireless.LoRaPacket import LoRaPacket
 
 class WakeUpBeacon:                       # tiny “packet”
     def __init__(self, gen_time: int, src_id: str):

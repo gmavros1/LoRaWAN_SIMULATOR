@@ -1,7 +1,6 @@
-from pathlib import Path
-from signals import Location                 # your neutral datatypes module
-from WakeUpRadioModule import WakeUpRadioModule
-from LoRaModule import LoRaModule
+from Wireless.signals import Location                 # your neutral datatypes module
+from Hardware.WakeUpRadioModule import WakeUpRadioModule
+from Hardware.LoRaModule import LoRaModule
 
 class SensorNode:
     """

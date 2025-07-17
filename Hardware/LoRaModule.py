@@ -4,10 +4,10 @@ from collections import defaultdict
 from heapq import nlargest
 from typing import Dict, List
 
-import Computations
-from Environment import Environment
-from LoRaPacket import LoRaPacket
-from signals import LoRaWirelessSignal
+from Utils import Computations
+from Physics.Environment import Environment
+from Wireless.LoRaPacket import LoRaPacket
+from Wireless.signals import LoRaWirelessSignal
 
 class Location:
     def __init__(self,x, y):
