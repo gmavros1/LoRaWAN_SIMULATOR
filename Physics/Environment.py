@@ -47,6 +47,7 @@ class Environment:
             self.lora_packet_over_air[signal.channel - 1][signal.sf - 7].append(_PacketRecord(signal, signal.lora_packet.segment_counter))
 
         def add_wake_up_beacon(self, signal: OOKRZWirelessSignal) -> None:
+            if signal is None: return
             self.wur_packets_over_air.append(_PacketRecord(signal, signal.time_over_air_required))
 
         def tick(self) -> None:
@@ -90,7 +91,7 @@ class Environment:
             return [p.toa_left for p in self.wur_packets_over_air]
 
         def __str__(self) -> str:
-            return str(self.snapshot_remaining_toa())
+            return str(self.snapshot_remaining_wur())
 
 
 
