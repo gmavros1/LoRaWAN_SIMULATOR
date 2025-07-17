@@ -1,6 +1,6 @@
+import Utils.Computations
 from Wireless.signals import LoRaWirelessSignal, OOKRZWirelessSignal
 from typing import List
-from Utils import Computations
 
 N_CHANNELS = 9
 N_SF       = 6          # SF7–SF12
@@ -40,11 +40,11 @@ class Environment:
         # ------------------------------------------------------------------
         def add_packet(self, signal: LoRaWirelessSignal) -> None:
             """Insert a new packet with its initial airtime budget (in ticks)."""
-            time_over_air_required: int = Computations.toa(
-                Computations.compute_payload_size(signal.lora_packet.Payload), signal.sf)
-            self._check_indices(signal.channel - 1, signal.sf - 7)
-            signal.time_over_air_required = time_over_air_required
-            self.lora_packet_over_air[signal.channel - 1][signal.sf - 7].append(_PacketRecord(signal, time_over_air_required))
+            if signal is None:
+                return
+            self._check_indices(signal.channel - 1, signal.sf - 7) # check channel and sf
+            signal.time_over_air_required = Utils.Computations.toa(Utils.Computations.compute_payload_size(signal.lora_packet.Payload),signal.sf)
+            self.lora_packet_over_air[signal.channel - 1][signal.sf - 7].append(_PacketRecord(signal, signal.lora_packet.segment_counter))
 
         def add_wake_up_beacon(self, signal: OOKRZWirelessSignal) -> None:
             self.wur_packets_over_air.append(_PacketRecord(signal, signal.time_over_air_required))
@@ -60,10 +60,7 @@ class Environment:
                     # iterate in place while safely removing dead packets
                     i = 0
                     while i < len(bucket):
-                        if bucket[i].tick():
-                            i += 1  # packet still active
-                        else:
-                            bucket.pop(i)  # drop expired packet
+                        bucket.pop(i)  # drop expired fragment of packet
 
             """
             Handle wur radio signal same way
@@ -89,11 +86,11 @@ class Environment:
                 for ch_buckets in self.lora_packet_over_air
             ]
 
-        def snaphot_remaining_wur(self) -> list:
+        def snapshot_remaining_wur(self) -> list:
             return [p.toa_left for p in self.wur_packets_over_air]
 
         def __str__(self) -> str:
-            return str(self.snaphot_remaining_wur())
+            return str(self.snapshot_remaining_toa())
 
 
 

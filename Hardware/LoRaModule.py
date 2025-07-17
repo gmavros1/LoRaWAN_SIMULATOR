@@ -1,3 +1,4 @@
+import copy
 import json
 from collections import defaultdict
 
@@ -42,16 +43,21 @@ class LoRaModule:
 
     def generate_packet(self,generation_time: int, payload: dict, header: dict):
         header["source"] = self.ID # Define the source in header
-        new_packet = LoRaPacket(generation_time, payload, header)
+        new_packet = LoRaPacket(generation_time, payload, header, Computations.toa(Computations.compute_payload_size(payload), self.SF))
         self.TX_Buffer.append(new_packet)
 
     def transmit_packet(self):
-        wireless_lora_signal = LoRaWirelessSignal(self.TX_Buffer.pop(), self)
-        return wireless_lora_signal
-
+        if len(self.TX_Buffer) > 0:
+            wireless_lora_signal = LoRaWirelessSignal(self.TX_Buffer.pop(), self)
+            if wireless_lora_signal.lora_packet.segment_counter > 1:
+                copy_wireless_lora_signal = copy.deepcopy(wireless_lora_signal)
+                copy_wireless_lora_signal.lora_packet.segment_counter -= 1
+                self.TX_Buffer.append(copy_wireless_lora_signal.lora_packet)
+            return wireless_lora_signal
+        return None
 
     def receive_packets_partial(self, environment: Environment):
-         packets_in_channel_sf = environment.lora_packet_over_air[self.Channel - 1][self.SF - 7].copy() # To have 1st index as 0
+         packets_in_channel_sf = environment.lora_packet_over_air[self.Channel - 1][self.SF - 7].copy() # To have 1st indexed as 0
          for i in range(len(packets_in_channel_sf)-1, -1, -1):
              rx_power = Computations.calculate_received_power(Computations.distance(
                  packets_in_channel_sf[i].signal.source_location, self.location),
