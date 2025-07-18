@@ -10,6 +10,7 @@ class LoRaPacket:
         self.Header: dict = header
         self.segment_counter: int = segment_counter
         self.Segments_required: int
+        self.IsFirstPacket: bool = True
 
     def set_reception_time(self, time: int):
         self.ReceptionTime = time

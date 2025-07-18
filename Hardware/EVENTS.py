@@ -1,0 +1,17 @@
+from enum import Enum
+
+class ClassA(Enum):
+    GENERATE_PACKET = 1
+    TRANSMISSION_START = 2
+    TRANSMISSION_END = 3
+    RECEIVE_START = 4
+    RECEIVE_END = 5
+    RX1_START = 6
+    RX1_END = 7
+    RX2_START = 8
+    RX2_END = 9
+    LISTEN = 10
+    PACKET_DECODED = 11
+    PACKET_NON_DECODED = 11
+    DELAY_START = 12
+    DELAY_END = 13

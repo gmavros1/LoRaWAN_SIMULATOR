@@ -35,7 +35,7 @@ print(environment)
 simulation_time = 111
 for time_slot in range(simulation_time):
 
-    wireless_packet1 = sensor_1.lora.transmit_packet()
+    wireless_packet1, _ = sensor_1.lora.transmit_packet()
     # wireless_packet2 = sensor_2.lora.transmit_packet()
     wur_beacon = sensor_2.wurx.transmit_beacon()
 

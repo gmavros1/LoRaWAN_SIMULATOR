@@ -3,8 +3,10 @@ import json
 from collections import defaultdict
 
 from heapq import nlargest
+from math import trunc
 from typing import Dict, List
 
+import Hardware.EVENTS
 from Utils import Computations
 from Physics.Environment import Environment
 from Wireless.LoRaPacket import LoRaPacket
@@ -43,8 +45,11 @@ class LoRaModule:
 
     def generate_packet(self,generation_time: int, payload: dict, header: dict):
         header["source"] = self.ID # Define the source in header
-        new_packet = LoRaPacket(generation_time, payload, header, Computations.toa(Computations.compute_payload_size(payload), self.SF))
+        new_packet: LoRaPacket = LoRaPacket(generation_time, payload, header, Computations.toa(Computations.compute_payload_size(payload), self.SF))
+        new_packet.IsFirstPacket = True
         self.TX_Buffer.append(new_packet)
+
+        return Hardware.EVENTS.ClassA.GENERATE_PACKET
 
     def transmit_packet(self):
         if len(self.TX_Buffer) > 0:
@@ -52,9 +57,17 @@ class LoRaModule:
             if wireless_lora_signal.lora_packet.segment_counter > 1:
                 copy_wireless_lora_signal = copy.deepcopy(wireless_lora_signal)
                 copy_wireless_lora_signal.lora_packet.segment_counter -= 1
+                copy_wireless_lora_signal.lora_packet.IsFirstPacket = False
                 self.TX_Buffer.append(copy_wireless_lora_signal.lora_packet)
-            return wireless_lora_signal
-        return None
+            else:
+                return wireless_lora_signal, Hardware.EVENTS.ClassA.TRANSMISSION_END
+
+            # Return Packet and Event
+            if wireless_lora_signal.lora_packet.IsFirstPacket:
+                return wireless_lora_signal, Hardware.EVENTS.ClassA.TRANSMISSION_START
+            else:
+                return wireless_lora_signal, None
+        return None, None
 
     def receive_packets_partial(self, environment: Environment):
          packets_in_channel_sf = environment.lora_packet_over_air[self.Channel - 1][self.SF - 7].copy() # To have 1st indexed as 0
@@ -70,12 +83,17 @@ class LoRaModule:
                  packets_in_channel_sf[i].signal.rx_power = rx_power
 
          if len(packets_in_channel_sf) < 1:
-             # nothing (or only one pkt) to compare
-             return
+             # nothing to compare
+             return Hardware.EVENTS.ClassA.LISTEN
          elif len(packets_in_channel_sf) == 1:
              self.RX_Buffer.append(packets_in_channel_sf[0].signal.lora_packet)
              if packets_in_channel_sf[0].toa_left == 0:
-                 self.decode_packet(packets_in_channel_sf[0].signal.time_over_air_required)
+                    return self.decode_packet(packets_in_channel_sf[0].signal.time_over_air_required)
+             elif packets_in_channel_sf[0].signal.lora_packet.IsFirstPacket:
+                 return Hardware.EVENTS.ClassA.RECEIVE_START
+             else:
+                 return None
+
          else:
              top_two = nlargest(2, packets_in_channel_sf, key=lambda p: p.signal.rx_power)
 
@@ -83,7 +101,12 @@ class LoRaModule:
              if top_two[0].signal.rx_power - top_two[1].signal.rx_power >= 6:
                  self.RX_Buffer.append(top_two[0].signal.lora_packet)
                  if top_two[0].toa_left == 0:
-                    self.decode_packet(top_two[0].signal.time_over_air_required)
+                    return self.decode_packet(top_two[0].signal.time_over_air_required)
+                 elif top_two[0].signal.lora_packet.IsFirstPacket:
+                     return Hardware.EVENTS.ClassA.RECEIVE_START
+                 else:
+                     return None
+             return None
 
 
     def decode_packet(self, segments_required):
@@ -96,8 +119,10 @@ class LoRaModule:
             if segments_required - 1 < len(pkt) < segments_required + 1:
                 self.TX_Buffer.append(pkt) # STORE FOR FORWARD
                 print("SUCCESSFULLY DECODED")
+                return Hardware.EVENTS.ClassA.PACKET_DECODED
             else:
                 print("DECODING ERROR")
+                return Hardware.EVENTS.ClassA.PACKET_NON_DECODED
 
         self.RX_Buffer = []
         print(self.TX_Buffer)
