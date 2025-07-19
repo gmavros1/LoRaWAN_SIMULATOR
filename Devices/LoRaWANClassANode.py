@@ -1,52 +1,34 @@
 import Hardware.EVENTS
+import Physics.Environment
 import Utils.TrafficModel
-from Hardware import SensorNode
+import Wireless.signals
+from Hardware.LoRaModule import sleep
+from Hardware.SensorNode import SensorNode
 
 class LoRaWANNode(SensorNode):
 
-    def __init__(self):
-        self.counter = 0
+    def __init__(self, node_id: str, wurx_json: str, lora_json: str, position: Wireless.signals.Location):
+        super().__init__(node_id, wurx_json, lora_json, position)
         self.EVENT: Hardware.EVENTS.ClassA
         self.event_generator: Utils.TrafficModel.TrafficModel = Utils.TrafficModel.TrafficModel()
-        self.current_state: str = "SLEEP"
+        self.action.executable, self.action.args = sleep, []
 
-    def tick(self):
-        if self.counter > 0: self.counter -= 1
+    def protocol_driver(self, interrupt: Hardware.EVENTS.ClassA, time: int,
+                        environment: Physics.Environment.Environment, wireless_signal):
 
-    # For RX1 and RX2 Delays
-    def sleep_delay(self, time: int):
-        if self.counter == 0:
-            self.counter = time
-            self.counter -= 1
-            return Hardware.EVENTS.ClassA.DELAY_START
+        if self.action.executable == sleep and self.event_generator.event_happened():
+                payload = {"messages": "DUMMY"}
+                header = {"destination": "00000"}
+                self.action.executable, self.action.args = self.lora.generate_packet, [time, payload, header]
 
-        if self.counter == 0:
-            return Hardware.EVENTS.ClassA.DELAY_END
+        if self.action.executable == self.lora.generate_packet and interrupt == Hardware.EVENTS.ClassA.GENERATE_PACKET:
+            self.action.executable, self.action.args = self.lora.transmit_packet, []
 
-        self.counter -= 1
-        return None
+        if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
+            self.action.executable, self.action.args = sleep, []
 
-    def protocol_driver(self, signal: Hardware.EVENTS.ClassA):
-        if self.current_state == "SLEEP":
-            if not self.event_generator.event_happened():
-                pass
-            else:
-                self.current_state = "GENERATE PACKET"
 
-        if self.current_state == "GENERATE PACKET" and signal == Hardware.EVENTS.ClassA.GENERATE_PACKET:
-            self.current_state = "TRANSMIT"
 
-        if self.current_state == "TRANSMIT":
-            if signal == Hardware.EVENTS.ClassA.TRANSMISSION_START:
-                pass
-            elif signal == Hardware.EVENTS.ClassA.TRANSMISSION_END:
-                self.current_state = "DELAY_RX1"
-
-        if self.current_state == "DELAY_RX1":
-            if signal == Hardware.EVENTS.ClassA.DELAY_START:
-                pass
-            elif signal == Hardware.EVENTS.ClassA.DELAY_END:
-                self.current_state = "RX1"
 
 
 

@@ -91,7 +91,7 @@ class Environment:
             return [p.toa_left for p in self.wur_packets_over_air]
 
         def __str__(self) -> str:
-            return str(self.snapshot_remaining_wur())
+            return str(self.snapshot_remaining_toa())
 
 
 
