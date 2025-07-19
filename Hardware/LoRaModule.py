@@ -124,7 +124,7 @@ class LoRaModule:
         buckets: Dict[str, List[LoRaPacket]] = defaultdict(list)
         for pkt in self.RX_Buffer:
             buckets[pkt.ID].append(pkt)
-        print(dict(buckets))
+        # print(dict(buckets))
 
         for pkt in dict(buckets).values():
             if segments_required - 1 < len(pkt) < segments_required + 1:
@@ -133,7 +133,7 @@ class LoRaModule:
                 print("SUCCESSFULLY DECODED")
                 return Hardware.EVENTS.ClassA.PACKET_DECODED, None
             else:
-                print("DECODING ERROR")
+                # print("DECODING ERROR")
                 return Hardware.EVENTS.ClassA.PACKET_NON_DECODED, None
 
     # For Example for RX1 and RX2 like Delays

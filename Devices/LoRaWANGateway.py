@@ -10,7 +10,6 @@ class LoRaWANGateway(SensorNode):
     def __init__(self, node_id: str, wurx_json: str, lora_json: str, position: Wireless.signals.Location, environment):
         super().__init__(node_id, wurx_json, lora_json, position)
         self.EVENT: Hardware.EVENTS.ClassA
-        # self.event_generator: Utils.TrafficModel.TrafficModel = Utils.TrafficModel.TrafficModel()
         self.action.executable, self.action.args = self.lora.receive_packets_partial, [environment]
 
     def protocol_driver(self, interrupt: Hardware.EVENTS.ClassA, time: int,
