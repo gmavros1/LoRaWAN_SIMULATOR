@@ -133,7 +133,8 @@ class LoRaModule:
                 print("SUCCESSFULLY DECODED")
                 return Hardware.EVENTS.ClassA.PACKET_DECODED, None
             else:
-                # print("DECODING ERROR")
+                print("DECODING ERROR")
+                self.RX_Buffer = []
                 return Hardware.EVENTS.ClassA.PACKET_NON_DECODED, None
 
     # For Example for RX1 and RX2 like Delays

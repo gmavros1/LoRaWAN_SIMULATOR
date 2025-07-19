@@ -1,34 +1,62 @@
+import Utils.Computations
 from Wireless.signals import Location
 from Physics.Environment import Environment
 from Devices.LoRaWANClassANode import LoRaWANNode
 from Devices.LoRaWANGateway import LoRaWANGateway
+import json
 
-LORA_NODE_PARAMETERS = "Configurations/LoRaNodeParameters.json"
-WAKE_UP_RADIO_PARAMETERS = "Configurations/MangalKingetWuR.json"
+class Simulation:
 
-environment = Environment()
+    def __init__(
+            self,
+            lora_config: str = "Configurations/LoRaNodeParameters.json",
+            wur_config: str = "Configurations/MangalKingetWuR.json",
+            devices_config: str = "Configurations/DefaultDevicesLocation.json",
+            device_type = LoRaWANNode):
 
-node1_location = Location(0, 1000)
-node1 = LoRaWANNode("1", WAKE_UP_RADIO_PARAMETERS, LORA_NODE_PARAMETERS, node1_location)
-gateway_location = Location(0, 0)
-gateway = LoRaWANGateway("0", WAKE_UP_RADIO_PARAMETERS, LORA_NODE_PARAMETERS, gateway_location, environment)
+        self.LORA_NODE_PARAMETERS = lora_config
+        self.WAKE_UP_RADIO_PARAMETERS = wur_config
+        self.DEVICES_PARAMETERS = devices_config
+        self.environment = Environment()
+        self.device_type = device_type
+        self.Devices = []
+        self.set_up_devices()
 
-Devices = [node1, gateway]
+    def set_up_devices(self):
+        with open(self.DEVICES_PARAMETERS, "r", encoding="utf-8") as f:
+            data = json.load(f)
 
-# @TODO:
-# Use callback to sort nodes.
-# nodes where its action is transmit goes first.
+        # END DEVICES
+        end_devices_config = data["Nodes"]
+        for node_config in end_devices_config:
+            node = self.device_type(node_config["ID"],
+                                    self.WAKE_UP_RADIO_PARAMETERS,
+                                    self.LORA_NODE_PARAMETERS,
+                                    Location(node_config["Location"]["x"], node_config["Location"]["y"]))
+            self.Devices.append(node)
 
-def run():
-    for i in range(100000):
+        # END DEVICES
+        end_devices_config = data["Gateways"]
+        for node_config in end_devices_config:
+            node = LoRaWANGateway(node_config["ID"],
+                                    self.WAKE_UP_RADIO_PARAMETERS,
+                                    self.LORA_NODE_PARAMETERS,
+                                    Location(node_config["Location"]["x"], node_config["Location"]["y"]), self.environment)
+            self.Devices.append(node)
 
-        for device in Devices:
-            interrupt, wireless_signal = device.action.executable(*device.action.args)
-            environment.add_packet(wireless_signal)
-            environment.add_wake_up_beacon(wireless_signal)
-            device.protocol_driver(interrupt, i, environment, wireless_signal)
 
-        # print(environment)
-        environment.tick()
+    def run(self):
+        for i in range(10000):
 
-run()
+            for device in Utils.Computations.sync_transmit_receive(self.Devices):
+                interrupt, wireless_signal = device.action.executable(*device.action.args)
+                self.environment.add_packet(wireless_signal)
+                self.environment.add_wake_up_beacon(wireless_signal)
+                device.protocol_driver(interrupt, i, self.environment, wireless_signal)
+
+            print(self.environment)
+            self.environment.tick()
+
+
+sim = Simulation()
+sim.run()

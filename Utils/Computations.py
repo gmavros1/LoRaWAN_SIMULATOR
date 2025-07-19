@@ -45,4 +45,22 @@ def distance(location1, location2) -> float:
     distance = math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2 + (z2 - z1) ** 2)
     return distance
 
+# Use this function to sort nodes.
+# nodes where its action is transmit goes first.
+def sync_transmit_receive(devices):
+    tx_list, other = [], []
+
+    TX_FUNC     = devices[0].lora.__class__.transmit_packet
+    TX_WUR_FUNC = devices[0].wurx.__class__.transmit_beacon
+
+    for dev in devices:                      # single pass
+        exec_ = getattr(dev.action, "executable", None)
+        func  = getattr(exec_, "__func__", None)  # underlying function
+        if func in (TX_FUNC, TX_WUR_FUNC):
+            tx_list.append(dev)
+        else:
+            other.append(dev)
+
+    return tx_list + other                   # new ordering
+
 # print(calculate_received_power(2000, 14))
