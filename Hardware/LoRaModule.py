@@ -97,6 +97,8 @@ class LoRaModule:
              # nothing to compare
              return Hardware.EVENTS.ClassA.LISTEN, None
          elif len(packets_in_channel_sf) == 1:
+             if packets_in_channel_sf[0].signal.lora_packet.IsFirstPacket: # Receiving first segment of packet
+                self.RX_Buffer = []                                        # All the previous stored has no effect
              self.RX_Buffer.append(packets_in_channel_sf[0].signal.lora_packet)
              if packets_in_channel_sf[0].toa_left == 0:
                     return self.decode_packet(packets_in_channel_sf[0].signal.time_over_air_required)
@@ -110,6 +112,8 @@ class LoRaModule:
 
              # capture effect (“capture margin” 6 dB)
              if top_two[0].signal.rx_power - top_two[1].signal.rx_power >= 6:
+                 if top_two[0].signal.lora_packet.IsFirstPacket:  # Receiving first segment of packet
+                     self.RX_Buffer = []
                  self.RX_Buffer.append(top_two[0].signal.lora_packet)
                  if top_two[0].toa_left == 0:
                     return self.decode_packet(top_two[0].signal.time_over_air_required)
@@ -133,8 +137,8 @@ class LoRaModule:
                 print("SUCCESSFULLY DECODED")
                 return Hardware.EVENTS.ClassA.PACKET_DECODED, None
             else:
-                print("DECODING ERROR")
                 self.RX_Buffer = []
+                print("DECODING ERROR")
                 return Hardware.EVENTS.ClassA.PACKET_NON_DECODED, None
 
     # For Example for RX1 and RX2 like Delays
