@@ -25,19 +25,20 @@ class LoRaWANGateway(SensorNode):
     def protocol_driver(self, interrupt: Hardware.EVENTS.ClassA, time: int,
                         environment: Physics.Environment.Environment, wireless_signal):
 
-        # if self.action.executable == self.lora.receive_packets_partial:
-        #     self.action.executable, self.action.args = self.lora.receive_packets_partial, [environment]
+        pass
+        # ACK LoRaWAN - Optional should be avoided
+        # Not full duplex
+        # https://www.thethingsnetwork.org/docs/lorawan/limitations/?utm_source=chatgpt.com
+        # if self.action.executable == self.lora.receive_packets_partial and interrupt == Hardware.EVENTS.ClassA.PACKET_DECODED:
+        #     self.action.executable, self.action.args = self.transmit_delay_1, []
         #
-        if self.action.executable == self.lora.receive_packets_partial and interrupt == Hardware.EVENTS.ClassA.PACKET_DECODED:
-            self.action.executable, self.action.args = self.transmit_delay_1, []
-
-        if self.action.executable == self.transmit_delay_1 and interrupt == Hardware.EVENTS.ClassA.RX1_DELAY_END:
-            payload = {"messages": "ACK"}
-            header = {"destination": "00000"}
-            self.action.executable, self.action.args = self.lora.generate_packet, [time, payload, header]
-
-        if self.action.executable == self.lora.generate_packet and interrupt == Hardware.EVENTS.ClassA.GENERATE_PACKET:
-            self.action.executable, self.action.args = self.lora.transmit_packet, []
-
-        if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
-            self.action.executable, self.action.args = self.lora.receive_packets_partial, [environment]
+        # if self.action.executable == self.transmit_delay_1 and interrupt == Hardware.EVENTS.ClassA.RX1_DELAY_END:
+        #     payload = {"messages": "ACK"}
+        #     header = {"destination": "00000"}
+        #     self.action.executable, self.action.args = self.lora.generate_packet, [time, payload, header]
+        #
+        # if self.action.executable == self.lora.generate_packet and interrupt == Hardware.EVENTS.ClassA.GENERATE_PACKET:
+        #     self.action.executable, self.action.args = self.lora.transmit_packet, []
+        #
+        # if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
+        #     self.action.executable, self.action.args = self.lora.receive_packets_partial, [environment]

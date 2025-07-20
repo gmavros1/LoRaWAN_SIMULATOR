@@ -46,7 +46,8 @@ class LoRaWANNode(SensorNode):
         elif signal_timer == Hardware.EVENTS.ClassA.DELAY_END and not self.lora.RX_Buffer: # No reception, end of time
             return Hardware.EVENTS.ClassA.RX1_END, None
         else:
-            self.lora.counter = None # Now it doesn't depend on time
+            if self.lora.RX_Buffer:
+                self.lora.counter = None # Now it doesn't depend on time
             return signal_receiver, None
 
 
@@ -60,7 +61,8 @@ class LoRaWANNode(SensorNode):
         elif signal_timer == Hardware.EVENTS.ClassA.DELAY_END and not self.lora.RX_Buffer: # No reception, end of time
             return Hardware.EVENTS.ClassA.RX2_END, None
         else:
-            self.lora.counter = None # Now it doesn't depend on time
+            if self.lora.RX_Buffer:
+                self.lora.counter = None # Now it doesn't depend on time
             return signal_receiver, None
 
     def protocol_driver(self, interrupt: Hardware.EVENTS.ClassA, time: int,
