@@ -17,9 +17,17 @@ def toa(payload_size: int, sf: int, bw: int = 125, crc: int =1, header: int =0, 
     # Time of payload - include header crc and low data range optimization
     num_payload_symbols = 8 + max(math.ceil((8.0 * payload_size - 4.0 * int(sf) + 28.0 + 16.0 * crc - 20.0 * header) / (4.0 * (int(sf) - 2.0 * de))) * (cr + 4), 0)
     time_of_payload = time_of_symbol * num_payload_symbols
-    time_of_preamble = (n_preamble + 4.25) * time_of_symbol
+    time_of_preamble = preamble_time(sf, bw, n_preamble)
 
     return time_of_preamble + time_of_payload
+
+def preamble_time(sf: int, bw: int = 125, n_preamble: int =8) -> int:
+    # Time of symbol (ms)
+    time_of_symbol = (2 ** int(sf)) / bw
+    time_of_preamble = (n_preamble + 4.25) * time_of_symbol
+
+    return time_of_preamble
+
 
 def calculate_received_power(distance:float, transmission_power: int, shadowing_std_dev: float=6.0):
     # Constants - sensors-22-03518-v3.pdf - reference

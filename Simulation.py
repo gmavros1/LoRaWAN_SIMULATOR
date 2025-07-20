@@ -46,7 +46,7 @@ class Simulation:
 
 
     def run(self):
-        for i in range(10000):
+        for i in range(1000):
 
             for device in Utils.Computations.sync_transmit_receive(self.Devices):
                 interrupt, wireless_signal = device.action.executable(*device.action.args)
