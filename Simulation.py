@@ -33,6 +33,7 @@ class Simulation:
                                     self.WAKE_UP_RADIO_PARAMETERS,
                                     self.LORA_NODE_PARAMETERS,
                                     Location(node_config["Location"]["x"], node_config["Location"]["y"]))
+            node.lora.SF = node_config["default_sf"]
             self.Devices.append(node)
 
         # END DEVICES

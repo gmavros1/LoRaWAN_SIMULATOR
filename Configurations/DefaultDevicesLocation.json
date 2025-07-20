@@ -2,7 +2,13 @@
   "Nodes" : [
     {
       "ID": "1",
-      "Location" : {"x": 0, "y": 0}
+      "Location" : {"x": 0, "y": 0},
+      "default_sf": 7
+    },
+    {
+      "ID": "1",
+      "Location" : {"x": 0, "y": 200},
+      "default_sf": 8
     }
   ],
 

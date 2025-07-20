@@ -9,7 +9,7 @@ class LoRaWANGateway(SensorNode):
 
     def __init__(self, node_id: str, wurx_json: str, lora_json: str, position: Wireless.signals.Location, environment):
         super().__init__(node_id, wurx_json, lora_json, position)
-        self.action.executable, self.action.args = self.lora.receive_packets_partial, [environment]
+        self.action.executable, self.action.args = self.multiple_input, [environment]
 
     def transmit_delay_1(self):
         print("RX DELAY 1")
@@ -21,6 +21,24 @@ class LoRaWANGateway(SensorNode):
             return Hardware.EVENTS.ClassA.RX1_DELAY_END, None
         else:
             return None, None
+
+    def multiple_input(self, environment):
+        MAXIMUM_PARALLEL_PACKETS = 8
+
+
+        # FIND OCCUPIED RESOURCES SF/CHANNEL
+        sf_channel = [(i, j) for i, row  in enumerate(environment.lora_packet_over_air) for j, cell in enumerate(row) if cell] # non-empty test
+
+        for i in range(MAXIMUM_PARALLEL_PACKETS):
+            if i == len(sf_channel):
+                break
+
+            self.lora.Channel = sf_channel[i][0] + 1
+            self.lora.SF = sf_channel[i][1] + 7
+
+            self.lora.receive_packets_partial(environment)
+
+        return None, None
 
     def protocol_driver(self, interrupt: Hardware.EVENTS.ClassA, time: int,
                         environment: Physics.Environment.Environment, wireless_signal):
