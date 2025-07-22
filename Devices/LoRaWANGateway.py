@@ -10,11 +10,12 @@ class LoRaWANGateway(SensorNode):
     def __init__(self, node_id: str, wurx_json: str, lora_json: str, position: Wireless.signals.Location, environment):
         super().__init__(node_id, wurx_json, lora_json, position)
         self.action.executable, self.action.args = self.multiple_input, [environment]
+        self.downlink_delay_after_reception: int = 20
 
     def transmit_delay_1(self):
         print("RX DELAY 1")
-        time: int = 20 # Standard 1 s
-        signal, _ = self.lora.sleep_delay(time)
+        # Standard 1 s
+        signal, _ = self.lora.sleep_delay(self.downlink_delay_after_reception)
         if signal == Hardware.EVENTS.ClassA.DELAY_START:
             return Hardware.EVENTS.ClassA.RX1_DELAY_START, None
         elif signal == Hardware.EVENTS.ClassA.DELAY_END:
@@ -24,7 +25,6 @@ class LoRaWANGateway(SensorNode):
 
     def multiple_input(self, environment):
         MAXIMUM_PARALLEL_PACKETS = 8
-
 
         # FIND OCCUPIED RESOURCES SF/CHANNEL
         sf_channel = [(i, j) for i, row  in enumerate(environment.lora_packet_over_air) for j, cell in enumerate(row) if cell] # non-empty test

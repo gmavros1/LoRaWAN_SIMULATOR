@@ -12,5 +12,9 @@ class LoRaPacket:
         self.Segments_required: int
         self.IsFirstPacket: bool = True
 
+        # Helper ----------
+        self.sf: int = 0
+        self.channel: int = 0
+
     def set_reception_time(self, time: int):
         self.ReceptionTime = time

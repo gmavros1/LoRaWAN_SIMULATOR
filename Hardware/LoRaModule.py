@@ -53,6 +53,8 @@ class LoRaModule:
         header["source"] = self.ID # Define the source in header
         new_packet: LoRaPacket = LoRaPacket(generation_time, payload, header, Computations.toa(Computations.compute_payload_size(payload), self.SF))
         new_packet.IsFirstPacket = True
+        new_packet.sf = self.SF
+        new_packet.channel = self.Channel
         self.TX_Buffer.append(new_packet)
 
         # print("GENERATE PACKET")
@@ -77,6 +79,13 @@ class LoRaModule:
                 return None, wireless_lora_signal
         return None, None
 
+    def clear_receiver_from_interrupted_packets(self):
+        # remove / drop every packet that uses *this* node’s channel & SF
+        self.RX_Buffer[:] = [
+            pkt for pkt in self.RX_Buffer
+            if not (pkt.sf == self.SF and pkt.channel == self.Channel)
+        ]
+
     def receive_packets_partial(self, environment: Environment):
          packets_in_channel_sf = environment.lora_packet_over_air[self.Channel - 1][self.SF - 7].copy() # To have 1st indexed as 0
          for i in range(len(packets_in_channel_sf)-1, -1, -1):
@@ -95,7 +104,7 @@ class LoRaModule:
              return None, None
          elif len(packets_in_channel_sf) == 1:
              if packets_in_channel_sf[0].signal.lora_packet.IsFirstPacket: # Receiving first segment of packet
-                self.RX_Buffer = []                                        # All the previous stored has no effect
+                self.clear_receiver_from_interrupted_packets()                                        # All the previous stored has no effect
                 print("RECEPTION START")
              self.RX_Buffer.append(packets_in_channel_sf[0].signal.lora_packet)
              if packets_in_channel_sf[0].toa_left == 0:
@@ -111,7 +120,7 @@ class LoRaModule:
              # capture effect (“capture margin” 6 dB)
              if top_two[0].signal.rx_power - top_two[1].signal.rx_power >= 6:
                  if top_two[0].signal.lora_packet.IsFirstPacket:  # Receiving first segment of packet
-                     self.RX_Buffer = []
+                     self.clear_receiver_from_interrupted_packets()
                      print("RECEPTION START")
                  self.RX_Buffer.append(top_two[0].signal.lora_packet)
                  if top_two[0].toa_left == 0:
@@ -125,19 +134,22 @@ class LoRaModule:
 
     def decode_packet(self, segments_required):
         buckets: Dict[str, List[LoRaPacket]] = defaultdict(list)
-        for pkt in self.RX_Buffer:
+        for pkt in [
+            pkt for pkt in self.RX_Buffer
+            if (pkt.sf == self.SF and pkt.channel == self.Channel)
+        ]:
             buckets[pkt.ID].append(pkt)
         # print(dict(buckets))
 
         for pkt in dict(buckets).values():
             if segments_required - 1 < len(pkt) < segments_required + 1:
                 self.TX_Buffer.append(pkt) # STORE FOR FORWARD
-                self.RX_Buffer = []
+                # self.RX_Buffer = []
                 print("SUCCESSFULLY DECODED")
                 print("RECEPTION END")
                 return Hardware.EVENTS.ClassA.PACKET_DECODED, None
             else:
-                self.RX_Buffer = []
+                # self.RX_Buffer = []
                 print("DECODING ERROR")
                 print("RECEPTION END")
                 return Hardware.EVENTS.ClassA.PACKET_NON_DECODED, None

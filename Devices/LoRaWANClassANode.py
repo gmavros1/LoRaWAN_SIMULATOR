@@ -12,6 +12,7 @@ class LoRaWANNode(SensorNode):
         super().__init__(node_id, wurx_json, lora_json, position)
         self.event_generator: Utils.TrafficModel.TrafficModel = Utils.TrafficModel.TrafficModel()
         self.action.executable, self.action.args = sleep, []
+        self.receiving_windows_enabled: bool = False
 
     def receive_delay_1(self):
         print("RX DELAY 1")
@@ -76,24 +77,27 @@ class LoRaWANNode(SensorNode):
         if self.action.executable == self.lora.generate_packet and interrupt == Hardware.EVENTS.ClassA.GENERATE_PACKET:
             self.action.executable, self.action.args = self.lora.transmit_packet, []
 
-        if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
-            self.action.executable, self.action.args = self.receive_delay_1, []
+        if self.receiving_windows_enabled:
+            if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
+                self.action.executable, self.action.args = self.receive_delay_1, []
 
-        if self.action.executable == self.receive_delay_1 and interrupt == Hardware.EVENTS.ClassA.RX1_DELAY_END:
-            self.action.executable, self.action.args = self.rx_1, [environment]
+            if self.action.executable == self.receive_delay_1 and interrupt == Hardware.EVENTS.ClassA.RX1_DELAY_END:
+                self.action.executable, self.action.args = self.rx_1, [environment]
 
-        if self.action.executable == self.rx_1 and interrupt == Hardware.EVENTS.ClassA.PACKET_DECODED:
-            self.action.executable, self.action.args = sleep, []
+            if self.action.executable == self.rx_1 and interrupt == Hardware.EVENTS.ClassA.PACKET_DECODED:
+                self.action.executable, self.action.args = sleep, []
 
-        if self.action.executable == self.rx_1 and (interrupt == Hardware.EVENTS.ClassA.RX1_END or interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED):
-            self.action.executable, self.action.args = self.receive_delay_2, []
+            if self.action.executable == self.rx_1 and (interrupt == Hardware.EVENTS.ClassA.RX1_END or interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED):
+                self.action.executable, self.action.args = self.receive_delay_2, []
 
-        if self.action.executable == self.receive_delay_2 and interrupt == Hardware.EVENTS.ClassA.RX2_DELAY_END:
-            self.action.executable, self.action.args = self.rx_2, [environment]
+            if self.action.executable == self.receive_delay_2 and interrupt == Hardware.EVENTS.ClassA.RX2_DELAY_END:
+                self.action.executable, self.action.args = self.rx_2, [environment]
 
-        if self.action.executable == self.rx_2 and (interrupt == Hardware.EVENTS.ClassA.PACKET_DECODED or
-                                                    interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED or
-                                                    interrupt == Hardware.EVENTS.ClassA.RX2_END):
-            self.action.executable, self.action.args = sleep, []
-
+            if self.action.executable == self.rx_2 and (interrupt == Hardware.EVENTS.ClassA.PACKET_DECODED or
+                                                        interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED or
+                                                        interrupt == Hardware.EVENTS.ClassA.RX2_END):
+                self.action.executable, self.action.args = sleep, []
+        else:
+            if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
+                self.action.executable, self.action.args = sleep, []
 
