@@ -3,162 +3,182 @@
     {
       "ID": "1",
       "Location": {
-        "x": 9477.46,
-        "y": 1501.74
+        "x": 947.75,
+        "y": 150.17
       },
-      "default_sf": 7
+      "default_sf": 9,
+      "default_channel": 4
     },
     {
       "ID": "2",
       "Location": {
-        "x": 1054.29,
-        "y": 6204.25
+        "x": -48.13,
+        "y": -564.9
       },
-      "default_sf": 7
+      "default_sf": 12,
+      "default_channel": 9
     },
     {
       "ID": "3",
       "Location": {
-        "x": -4577.02,
-        "y": -9225.12
+        "x": -312.09,
+        "y": 166.7
       },
-      "default_sf": 7
+      "default_sf": 7,
+      "default_channel": 2
     },
     {
       "ID": "4",
       "Location": {
-        "x": 9685.18,
-        "y": 5888.22
+        "x": -560.79,
+        "y": -18.88
       },
-      "default_sf": 7
+      "default_sf": 7,
+      "default_channel": 9
     },
     {
       "ID": "5",
       "Location": {
-        "x": 7658.45,
-        "y": 1450.82
+        "x": -314.83,
+        "y": -432.67
       },
-      "default_sf": 7
+      "default_sf": 11,
+      "default_channel": 7
     },
     {
       "ID": "6",
       "Location": {
-        "x": -5607.87,
-        "y": -188.77
+        "x": -477.09,
+        "y": -299.69
       },
-      "default_sf": 7
+      "default_sf": 7,
+      "default_channel": 3
     },
     {
       "ID": "7",
       "Location": {
-        "x": 617.62,
-        "y": 1854.65
+        "x": -538.58,
+        "y": 845.72
       },
-      "default_sf": 7
+      "default_sf": 8,
+      "default_channel": 4
     },
     {
       "ID": "8",
       "Location": {
-        "x": -9290.73,
-        "y": -2695.5
+        "x": 300.02,
+        "y": 208.66
       },
-      "default_sf": 7
+      "default_sf": 9,
+      "default_channel": 5
     },
     {
       "ID": "9",
       "Location": {
-        "x": -4770.93,
-        "y": -2996.94
+        "x": -136.92,
+        "y": -1069.35
       },
-      "default_sf": 7
+      "default_sf": 11,
+      "default_channel": 2
     },
     {
       "ID": "10",
       "Location": {
-        "x": 10787.2,
-        "y": 440.72
+        "x": -855.42,
+        "y": 818.25
       },
-      "default_sf": 7
+      "default_sf": 11,
+      "default_channel": 5
     },
     {
       "ID": "11",
       "Location": {
-        "x": -3448.3,
-        "y": -10205.25
+        "x": -803.58,
+        "y": -740.67
       },
-      "default_sf": 7
+      "default_sf": 9,
+      "default_channel": 4
     },
     {
       "ID": "12",
       "Location": {
-        "x": 3916.97,
-        "y": 5801.16
+        "x": -140.33,
+        "y": 555.41
       },
-      "default_sf": 7
+      "default_sf": 7,
+      "default_channel": 4
     },
     {
       "ID": "13",
       "Location": {
-        "x": -6077.33,
-        "y": 10045.14
+        "x": 407.43,
+        "y": -697.79
       },
-      "default_sf": 7
+      "default_sf": 8,
+      "default_channel": 6
     },
     {
       "ID": "14",
       "Location": {
-        "x": 3000.24,
-        "y": 2086.61
+        "x": -407.65,
+        "y": -918.93
       },
-      "default_sf": 7
+      "default_sf": 7,
+      "default_channel": 3
     },
     {
       "ID": "15",
       "Location": {
-        "x": -8782.87,
-        "y": -6700.78
+        "x": 28.59,
+        "y": 876.55
       },
-      "default_sf": 7
+      "default_sf": 10,
+      "default_channel": 7
     },
     {
       "ID": "16",
       "Location": {
-        "x": -1369.22,
-        "y": -10693.54
+        "x": 556.22,
+        "y": -281.69
       },
-      "default_sf": 7
+      "default_sf": 12,
+      "default_channel": 9
     },
     {
       "ID": "17",
       "Location": {
-        "x": 8662.24,
-        "y": -1477.29
+        "x": 987.54,
+        "y": 362.12
       },
-      "default_sf": 7
+      "default_sf": 7,
+      "default_channel": 6
     },
     {
       "ID": "18",
       "Location": {
-        "x": -6991.84,
-        "y": -2371.32
+        "x": 695.27,
+        "y": 307.05
       },
-      "default_sf": 7
+      "default_sf": 11,
+      "default_channel": 6
     },
     {
       "ID": "19",
       "Location": {
-        "x": -8035.84,
-        "y": -7406.72
+        "x": -1004.85,
+        "y": -251.13
       },
-      "default_sf": 7
+      "default_sf": 12,
+      "default_channel": 7
     },
     {
       "ID": "20",
       "Location": {
-        "x": -9849.44,
-        "y": -5203.3
+        "x": 561.91,
+        "y": -8.69
       },
-      "default_sf": 7
+      "default_sf": 11,
+      "default_channel": 8
     }
   ],
   "Gateways": [

@@ -43,6 +43,7 @@ class Simulation:
                                     self.LORA_NODE_PARAMETERS,
                                     Location(node_config["Location"]["x"], node_config["Location"]["y"]))
             node.lora.SF = node_config["default_sf"]
+            node.lora.Channel = node_config["default_channel"]
             node.event_generator.probability = self.event_prob_generation
             self.Devices.append(node)
 
@@ -84,7 +85,7 @@ class Simulation:
 statistics = Metrics.Statistics.AlohaValidation()
 
 for i in range(1, 11):
-    probability_generation = 1 / (i * 60000) # ms based
+    probability_generation = 1 / (i * 3000) # ms based
     sim = Simulation(1000000, probability_generation)
     sim.run()
     generated_packets, successfully_received = sim.end_of_simulation()

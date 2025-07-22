@@ -7,11 +7,17 @@ from pathlib import Path
 # ----------------------------------------------------------------------
 # Parameters you can tweak
 # ----------------------------------------------------------------------
-N_NODES          = 20
+N_NODES          = 100
 MIN_DIST_M       = 200         # minimum node-to-node spacing
-MAX_RADIUS_M     = 12_000      # furthest node from gateway
+MAX_RADIUS_M     = 1200      # furthest node from gateway
 DEFAULT_SF       = 7           # initial spreading factor
 JSON_OUT         = Path("topology.json")
+
+def default_sf():
+    return random.randint(7,12)
+
+def default_channel():
+    return random.randint(1,9)
 
 random.seed(42)                # reproducible demo; drop for full random
 
@@ -34,7 +40,8 @@ while len(nodes) < N_NODES:
         nodes.append({
             "ID": str(len(nodes)+1),
             "Location": {"x": round(x, 2), "y": round(y, 2)},
-            "default_sf": DEFAULT_SF
+            "default_sf": default_sf(),
+            "default_channel": default_channel()
         })
 
 # ----------------------------------------------------------------------
@@ -53,3 +60,7 @@ with JSON_OUT.open("w", encoding="utf-8") as f:
     json.dump(topology, f, indent=2)
 
 print(f"Topology written to {JSON_OUT.resolve()}")
+
+
+# for _ in range(20):
+#     print(default_sf())
