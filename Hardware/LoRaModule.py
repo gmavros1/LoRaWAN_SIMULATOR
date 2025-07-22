@@ -46,6 +46,10 @@ class LoRaModule:
         self.RSSI: float = self.RSSI7
         self.counter = None
 
+        # LOGS
+        self.generated_packets: int = 0
+        self.successfully_received_packets = []
+
     def tick(self):
         if self.counter > 0: self.counter -= 1
 
@@ -56,6 +60,9 @@ class LoRaModule:
         new_packet.sf = self.SF
         new_packet.channel = self.Channel
         self.TX_Buffer.append(new_packet)
+
+        # Statistics
+        self.generated_packets += 1
 
         # print("GENERATE PACKET")
         return Hardware.EVENTS.ClassA.GENERATE_PACKET, None
@@ -105,7 +112,7 @@ class LoRaModule:
          elif len(packets_in_channel_sf) == 1:
              if packets_in_channel_sf[0].signal.lora_packet.IsFirstPacket: # Receiving first segment of packet
                 self.clear_receiver_from_interrupted_packets()                                        # All the previous stored has no effect
-                print("RECEPTION START")
+                # print("RECEPTION START")
              self.RX_Buffer.append(packets_in_channel_sf[0].signal.lora_packet)
              if packets_in_channel_sf[0].toa_left == 0:
                     return self.decode_packet(packets_in_channel_sf[0].signal.time_over_air_required)
@@ -121,7 +128,7 @@ class LoRaModule:
              if top_two[0].signal.rx_power - top_two[1].signal.rx_power >= 6:
                  if top_two[0].signal.lora_packet.IsFirstPacket:  # Receiving first segment of packet
                      self.clear_receiver_from_interrupted_packets()
-                     print("RECEPTION START")
+                     # print("RECEPTION START")
                  self.RX_Buffer.append(top_two[0].signal.lora_packet)
                  if top_two[0].toa_left == 0:
                     return self.decode_packet(top_two[0].signal.time_over_air_required)
@@ -145,13 +152,17 @@ class LoRaModule:
             if segments_required - 1 < len(pkt) < segments_required + 1:
                 self.TX_Buffer.append(pkt) # STORE FOR FORWARD
                 # self.RX_Buffer = []
-                print("SUCCESSFULLY DECODED")
-                print("RECEPTION END")
+                # print("SUCCESSFULLY DECODED")
+                # print("RECEPTION END")
+
+                # Statistics
+                self.successfully_received_packets.append(pkt[0].ID)
+
                 return Hardware.EVENTS.ClassA.PACKET_DECODED, None
             else:
                 # self.RX_Buffer = []
-                print("DECODING ERROR")
-                print("RECEPTION END")
+                # print("DECODING ERROR")
+                # print("RECEPTION END")
                 return Hardware.EVENTS.ClassA.PACKET_NON_DECODED, None
 
     # For Example for RX1 and RX2 like Delays

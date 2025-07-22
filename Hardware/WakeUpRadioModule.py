@@ -64,7 +64,7 @@ class WakeUpRadioModule:
             self._latency_counter -= 1
             if self._latency_counter == 0:
                 self.IRQ = True  # wake-up event!
-                print("WAKE UP SIGNAL")
+                # print("WAKE UP SIGNAL")
         else:
             self.IRQ = False
 

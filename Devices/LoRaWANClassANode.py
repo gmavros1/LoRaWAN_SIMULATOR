@@ -15,7 +15,7 @@ class LoRaWANNode(SensorNode):
         self.receiving_windows_enabled: bool = False
 
     def receive_delay_1(self):
-        print("RX DELAY 1")
+        # print("RX DELAY 1")
         time: int = 20 # Standard 1 s
         signal, _ = self.lora.sleep_delay(time)
         if signal == Hardware.EVENTS.ClassA.DELAY_START:
@@ -27,7 +27,7 @@ class LoRaWANNode(SensorNode):
 
 
     def receive_delay_2(self):
-        print("RX DELAY 2")
+        # print("RX DELAY 2")
         time: int = 20 # Standard 1 s
         signal, _ = self.lora.sleep_delay(time)
         if signal == Hardware.EVENTS.ClassA.DELAY_START:
@@ -38,7 +38,7 @@ class LoRaWANNode(SensorNode):
             return None, None
 
     def rx_1(self, environment):
-        print("RX 1")
+        # print("RX 1")
         timeout = int(cmp.preamble_time(self.lora.SF))
         signal_timer, _ = self.lora.sleep_delay(timeout) # Used as timer
         signal_receiver, _ = self.lora.receive_packets_partial(environment)
@@ -53,7 +53,7 @@ class LoRaWANNode(SensorNode):
 
 
     def rx_2(self, environment):
-        print("RX 2")
+        # print("RX 2")
         timeout = int(cmp.preamble_time(self.lora.SF))
         signal_timer, _ = self.lora.sleep_delay(timeout) # Used as timer
         signal_receiver, _ = self.lora.receive_packets_partial(environment)

@@ -13,7 +13,7 @@ class LoRaWANGateway(SensorNode):
         self.downlink_delay_after_reception: int = 20
 
     def transmit_delay_1(self):
-        print("RX DELAY 1")
+        # print("RX DELAY 1")
         # Standard 1 s
         signal, _ = self.lora.sleep_delay(self.downlink_delay_after_reception)
         if signal == Hardware.EVENTS.ClassA.DELAY_START:

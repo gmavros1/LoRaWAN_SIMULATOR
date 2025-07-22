@@ -1,18 +1,24 @@
+import Metrics.Statistics
 import Utils.Computations
 from Wireless.signals import Location
 from Physics.Environment import Environment
 from Devices.LoRaWANClassANode import LoRaWANNode
 from Devices.LoRaWANGateway import LoRaWANGateway
+from tqdm import tqdm
+import numpy as np
 import json
 
 class Simulation:
 
     def __init__(
             self,
+            simulation_time,
+            generation_prob,
             lora_config: str = "Configurations/LoRaNodeParameters.json",
             wur_config: str = "Configurations/MangalKingetWuR.json",
-            devices_config: str = "Configurations/DefaultDevicesLocation.json",
-            device_type = LoRaWANNode):
+            devices_config: str = "Topology/topology.json",
+            device_type = LoRaWANNode
+            ):
 
         self.LORA_NODE_PARAMETERS = lora_config
         self.WAKE_UP_RADIO_PARAMETERS = wur_config
@@ -20,6 +26,9 @@ class Simulation:
         self.environment = Environment()
         self.device_type = device_type
         self.Devices = []
+        self.simulation_time = simulation_time
+        self.event_prob_generation = generation_prob
+
         self.set_up_devices()
 
     def set_up_devices(self):
@@ -34,6 +43,7 @@ class Simulation:
                                     self.LORA_NODE_PARAMETERS,
                                     Location(node_config["Location"]["x"], node_config["Location"]["y"]))
             node.lora.SF = node_config["default_sf"]
+            node.event_generator.probability = self.event_prob_generation
             self.Devices.append(node)
 
         # END DEVICES
@@ -47,7 +57,7 @@ class Simulation:
 
 
     def run(self):
-        for i in range(1000):
+        for i in tqdm(range(self.simulation_time), desc="Simulating") :
 
             for device in Utils.Computations.sync_transmit_receive(self.Devices):
                 interrupt, wireless_signal = device.action.executable(*device.action.args)
@@ -55,9 +65,29 @@ class Simulation:
                 self.environment.add_wake_up_beacon(wireless_signal)
                 device.protocol_driver(interrupt, i, self.environment, wireless_signal)
 
-            print(self.environment)
+            # print(self.environment)
             self.environment.tick()
 
+    def end_of_simulation(self):
 
-sim = Simulation()
-sim.run()
+        generated_packets = 0
+        successfully_received_packets_list = []
+        for devices in self.Devices:
+            generated_packets += devices.lora.generated_packets
+            successfully_received_packets_list += devices.lora.successfully_received_packets
+
+        successfully_received_packets = len(list(dict.fromkeys(successfully_received_packets_list)))
+
+        return generated_packets, successfully_received_packets
+
+
+statistics = Metrics.Statistics.AlohaValidation()
+
+for i in range(1, 11):
+    probability_generation = 1 / (i * 60000) # ms based
+    sim = Simulation(1000000, probability_generation)
+    sim.run()
+    generated_packets, successfully_received = sim.end_of_simulation()
+    statistics.add_run(i/10,generated_packets, successfully_received)
+
+statistics.plot("SIMULATION 1")
