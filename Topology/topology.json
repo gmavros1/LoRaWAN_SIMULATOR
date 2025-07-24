@@ -6,179 +6,89 @@
         "x": 947.75,
         "y": 150.17
       },
-      "default_sf": 9,
-      "default_channel": 4
+      "default_sf": 7,
+      "default_channel": 1
     },
     {
       "ID": "2",
       "Location": {
-        "x": -48.13,
-        "y": -564.9
+        "x": 105.43,
+        "y": 620.42
       },
-      "default_sf": 12,
-      "default_channel": 9
+      "default_sf": 7,
+      "default_channel": 1
     },
     {
       "ID": "3",
       "Location": {
-        "x": -312.09,
-        "y": 166.7
+        "x": -457.7,
+        "y": -922.51
       },
       "default_sf": 7,
-      "default_channel": 2
+      "default_channel": 1
     },
     {
       "ID": "4",
+      "Location": {
+        "x": 968.52,
+        "y": 588.82
+      },
+      "default_sf": 7,
+      "default_channel": 1
+    },
+    {
+      "ID": "5",
       "Location": {
         "x": -560.79,
         "y": -18.88
       },
       "default_sf": 7,
-      "default_channel": 9
-    },
-    {
-      "ID": "5",
-      "Location": {
-        "x": -314.83,
-        "y": -432.67
-      },
-      "default_sf": 11,
-      "default_channel": 7
+      "default_channel": 1
     },
     {
       "ID": "6",
       "Location": {
-        "x": -477.09,
-        "y": -299.69
+        "x": 61.76,
+        "y": 185.46
       },
       "default_sf": 7,
-      "default_channel": 3
+      "default_channel": 1
     },
     {
       "ID": "7",
       "Location": {
-        "x": -538.58,
-        "y": 845.72
+        "x": -929.07,
+        "y": -269.55
       },
-      "default_sf": 8,
-      "default_channel": 4
+      "default_sf": 7,
+      "default_channel": 1
     },
     {
       "ID": "8",
       "Location": {
-        "x": 300.02,
-        "y": 208.66
+        "x": -607.73,
+        "y": 1004.51
       },
-      "default_sf": 9,
-      "default_channel": 5
+      "default_sf": 7,
+      "default_channel": 1
     },
     {
       "ID": "9",
       "Location": {
-        "x": -136.92,
-        "y": -1069.35
+        "x": -878.29,
+        "y": -670.08
       },
-      "default_sf": 11,
-      "default_channel": 2
+      "default_sf": 7,
+      "default_channel": 1
     },
     {
       "ID": "10",
       "Location": {
-        "x": -855.42,
-        "y": 818.25
-      },
-      "default_sf": 11,
-      "default_channel": 5
-    },
-    {
-      "ID": "11",
-      "Location": {
-        "x": -803.58,
-        "y": -740.67
-      },
-      "default_sf": 9,
-      "default_channel": 4
-    },
-    {
-      "ID": "12",
-      "Location": {
-        "x": -140.33,
-        "y": 555.41
+        "x": -136.92,
+        "y": -1069.35
       },
       "default_sf": 7,
-      "default_channel": 4
-    },
-    {
-      "ID": "13",
-      "Location": {
-        "x": 407.43,
-        "y": -697.79
-      },
-      "default_sf": 8,
-      "default_channel": 6
-    },
-    {
-      "ID": "14",
-      "Location": {
-        "x": -407.65,
-        "y": -918.93
-      },
-      "default_sf": 7,
-      "default_channel": 3
-    },
-    {
-      "ID": "15",
-      "Location": {
-        "x": 28.59,
-        "y": 876.55
-      },
-      "default_sf": 10,
-      "default_channel": 7
-    },
-    {
-      "ID": "16",
-      "Location": {
-        "x": 556.22,
-        "y": -281.69
-      },
-      "default_sf": 12,
-      "default_channel": 9
-    },
-    {
-      "ID": "17",
-      "Location": {
-        "x": 987.54,
-        "y": 362.12
-      },
-      "default_sf": 7,
-      "default_channel": 6
-    },
-    {
-      "ID": "18",
-      "Location": {
-        "x": 695.27,
-        "y": 307.05
-      },
-      "default_sf": 11,
-      "default_channel": 6
-    },
-    {
-      "ID": "19",
-      "Location": {
-        "x": -1004.85,
-        "y": -251.13
-      },
-      "default_sf": 12,
-      "default_channel": 7
-    },
-    {
-      "ID": "20",
-      "Location": {
-        "x": 561.91,
-        "y": -8.69
-      },
-      "default_sf": 11,
-      "default_channel": 8
+      "default_channel": 1
     }
   ],
   "Gateways": [

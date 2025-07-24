@@ -4,6 +4,7 @@ from Wireless.signals import Location
 from Physics.Environment import Environment
 from Devices.LoRaWANClassANode import LoRaWANNode
 from Devices.LoRaWANGateway import LoRaWANGateway
+from Devices.NetworkServer import  NetworkServer
 from tqdm import tqdm
 import numpy as np
 import json
@@ -28,6 +29,7 @@ class Simulation:
         self.Devices = []
         self.simulation_time = simulation_time
         self.event_prob_generation = generation_prob
+        self.NetworkServer = NetworkServer()
 
         self.set_up_devices()
 
@@ -47,13 +49,13 @@ class Simulation:
             node.event_generator.probability = self.event_prob_generation
             self.Devices.append(node)
 
-        # END DEVICES
+        # GATEWAYS
         end_devices_config = data["Gateways"]
         for node_config in end_devices_config:
             node = LoRaWANGateway(node_config["ID"],
                                     self.WAKE_UP_RADIO_PARAMETERS,
                                     self.LORA_NODE_PARAMETERS,
-                                    Location(node_config["Location"]["x"], node_config["Location"]["y"]), self.environment)
+                                    Location(node_config["Location"]["x"], node_config["Location"]["y"]), self.environment, self.NetworkServer)
             self.Devices.append(node)
 
 
@@ -80,15 +82,3 @@ class Simulation:
         successfully_received_packets = len(list(dict.fromkeys(successfully_received_packets_list)))
 
         return generated_packets, successfully_received_packets
-
-
-statistics = Metrics.Statistics.AlohaValidation()
-
-for i in range(1, 11):
-    probability_generation = 1 / (i * 3000) # ms based
-    sim = Simulation(1000000, probability_generation)
-    sim.run()
-    generated_packets, successfully_received = sim.end_of_simulation()
-    statistics.add_run(i/10,generated_packets, successfully_received)
-
-statistics.plot("SIMULATION 1")

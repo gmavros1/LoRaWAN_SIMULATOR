@@ -35,15 +35,15 @@ class LoRaModule:
         self.Bandwidth: int = parameters["bandwidth"]
         self.PowerTX: float = parameters["PowerTX"]
 
-        self.RSSI7: float = parameters["RSSI_sf7"]
-        self.RSSI8: float = parameters["RSSI_sf8"]
-        self.RSSI9: float = parameters["RSSI_sf9"]
-        self.RSSI10: float = parameters["RSSI_sf10"]
-        self.RSSI11: float = parameters["RSSI_sf11"]
-        self.RSSI12: float = parameters["RSSI_sf12"]
+        self.RSSIs = {"7": parameters["RSSI_sf7"],
+                 "8": parameters["RSSI_sf8"],
+                 "9": parameters["RSSI_sf9"],
+                 "10": parameters["RSSI_sf10"],
+                 "11": parameters["RSSI_sf11"],
+                 "12": parameters["RSSI_sf12"]}
 
         # Default
-        self.RSSI: float = self.RSSI7
+        self.RSSI: float = self.RSSIs["7"]
         self.counter = None
 
         # LOGS

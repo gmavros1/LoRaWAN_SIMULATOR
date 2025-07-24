@@ -5,12 +5,15 @@ import Wireless.signals
 from Hardware.LoRaModule import sleep
 from Hardware.SensorNode import SensorNode
 
+MAXIMUM_PARALLEL_PACKETS = 8
+
 class LoRaWANGateway(SensorNode):
 
-    def __init__(self, node_id: str, wurx_json: str, lora_json: str, position: Wireless.signals.Location, environment):
+    def __init__(self, node_id: str, wurx_json: str, lora_json: str, position: Wireless.signals.Location, environment, NetworkServer):
         super().__init__(node_id, wurx_json, lora_json, position)
         self.action.executable, self.action.args = self.multiple_input, [environment]
         self.downlink_delay_after_reception: int = 20
+        self.NetworkServer = NetworkServer
 
     def transmit_delay_1(self):
         # print("RX DELAY 1")
@@ -24,8 +27,6 @@ class LoRaWANGateway(SensorNode):
             return None, None
 
     def multiple_input(self, environment):
-        MAXIMUM_PARALLEL_PACKETS = 8
-
         # FIND OCCUPIED RESOURCES SF/CHANNEL
         sf_channel = [(i, j) for i, row  in enumerate(environment.lora_packet_over_air) for j, cell in enumerate(row) if cell] # non-empty test
 
@@ -35,6 +36,7 @@ class LoRaWANGateway(SensorNode):
 
             self.lora.Channel = sf_channel[i][0] + 1
             self.lora.SF = sf_channel[i][1] + 7
+            self.lora.RSSI = self.lora.RSSIs[str(self.lora.SF)]
 
             self.lora.receive_packets_partial(environment)
 
@@ -60,3 +62,9 @@ class LoRaWANGateway(SensorNode):
         #
         # if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
         #     self.action.executable, self.action.args = self.lora.receive_packets_partial, [environment]
+
+    # FOR OTAA PROCESS
+    # Join Request -> 18 bytes
+    # Join Accept and Join Requests Delay set at 5 and 6 sec for RX1 AND RX2 DELAY
+    # Join Accept -> 12 + 16 bytes
+    #
