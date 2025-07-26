@@ -4,8 +4,6 @@ import math
 import random
 from pathlib import Path
 
-
-
 class TopologyGenerator:
 
     def __init__(self, N_NODES, MIN_DIST_M, MAX_RADIOUS_M, DEFAULT_SF, DEFAULT_CHANNEL):

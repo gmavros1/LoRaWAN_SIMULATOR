@@ -66,7 +66,7 @@ class Simulation:
                 interrupt, wireless_signal = device.action.executable(*device.action.args)
                 self.environment.add_packet(wireless_signal)
                 self.environment.add_wake_up_beacon(wireless_signal)
-                device.protocol_driver(interrupt, i, self.environment, wireless_signal)
+                device.protocol_driver(interrupt, i, self.environment)
 
             # print(self.environment)
             self.environment.tick()

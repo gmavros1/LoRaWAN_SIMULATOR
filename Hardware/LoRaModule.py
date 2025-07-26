@@ -125,7 +125,7 @@ class LoRaModule:
              top_two = nlargest(2, packets_in_channel_sf, key=lambda p: p.signal.rx_power)
 
              # capture effect (“capture margin” 6 dB)
-             if top_two[0].signal.rx_power - top_two[1].signal.rx_power >= 6:
+             if top_two[0].signal.rx_power - top_two[1].signal.rx_power >= 6: ## Activate ro deactivate capture effect
                  if top_two[0].signal.lora_packet.IsFirstPacket:  # Receiving first segment of packet
                      self.clear_receiver_from_interrupted_packets()
                      # print("RECEPTION START")

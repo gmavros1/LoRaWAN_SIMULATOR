@@ -43,7 +43,7 @@ class LoRaWANGateway(SensorNode):
         return None, None
 
     def protocol_driver(self, interrupt: Hardware.EVENTS.ClassA, time: int,
-                        environment: Physics.Environment.Environment, wireless_signal):
+                        environment: Physics.Environment.Environment):
 
         pass
         # ACK LoRaWAN - Optional should be avoided

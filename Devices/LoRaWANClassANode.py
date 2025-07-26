@@ -13,10 +13,13 @@ class LoRaWANNode(SensorNode):
         self.event_generator: Utils.TrafficModel.TrafficModel = Utils.TrafficModel.TrafficModel()
         self.action.executable, self.action.args = sleep, []
         self.receiving_windows_enabled: bool = False
+        self.RECEIVE_DELAY_1: int = 5000
+        self.RECEIVE_DELAY_2: int = 1000
+        self.joined_to_network: bool = False # Default value
 
     def receive_delay_1(self):
         # print("RX DELAY 1")
-        time: int = 20 # Standard 1 s
+        time: int = self.RECEIVE_DELAY_1 # Standard 5 in joining process
         signal, _ = self.lora.sleep_delay(time)
         if signal == Hardware.EVENTS.ClassA.DELAY_START:
             return Hardware.EVENTS.ClassA.RX1_DELAY_START, None
@@ -28,7 +31,7 @@ class LoRaWANNode(SensorNode):
 
     def receive_delay_2(self):
         # print("RX DELAY 2")
-        time: int = 20 # Standard 1 s
+        time:int =  self.RECEIVE_DELAY_2 # Standard 6 sc (+ RECEIVE_DELAY_1)
         signal, _ = self.lora.sleep_delay(time)
         if signal == Hardware.EVENTS.ClassA.DELAY_START:
             return Hardware.EVENTS.ClassA.RX2_DELAY_START, None
@@ -67,7 +70,7 @@ class LoRaWANNode(SensorNode):
             return signal_receiver, None
 
     def protocol_driver(self, interrupt: Hardware.EVENTS.ClassA, time: int,
-                        environment: Physics.Environment.Environment, wireless_signal):
+                        environment: Physics.Environment.Environment):
 
         if self.action.executable == sleep and self.event_generator.event_happened():
                 payload = {"messages": "DUMMY"}
@@ -101,3 +104,7 @@ class LoRaWANNode(SensorNode):
             if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
                 self.action.executable, self.action.args = sleep, []
 
+
+
+    def join_driver(self):
+        pass
