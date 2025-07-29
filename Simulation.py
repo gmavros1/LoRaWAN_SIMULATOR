@@ -46,6 +46,7 @@ class Simulation:
                                     Location(node_config["Location"]["x"], node_config["Location"]["y"]))
             node.lora.SF = node_config["default_sf"]
             node.lora.Channel = node_config["default_channel"]
+            node.lora.RSSI = node.lora.RSSIs[str(node.lora.SF)]
             node.event_generator.probability = self.event_prob_generation
             self.Devices.append(node)
 
@@ -70,6 +71,23 @@ class Simulation:
 
             # print(self.environment)
             self.environment.tick()
+
+    def initialize_network(self):
+        for device in self.Devices:
+            print(str(device.lora.ID) + " " +  str(device.lora.SF))
+
+        for i in range(500000 * len(self.Devices)) :
+            for device in Utils.Computations.sync_transmit_receive(self.Devices):
+                interrupt, wireless_signal = device.action.executable(*device.action.args)
+                self.environment.add_packet(wireless_signal)
+                self.environment.add_wake_up_beacon(wireless_signal)
+                device.join_driver(interrupt, i, self.environment)
+
+            # print(self.environment)
+            self.environment.tick()
+
+        for device in self.Devices:
+            print(str(device.lora.ID) + " " +  str(device.lora.SF) + " " + str(device.joined_to_network))
 
     def end_of_simulation(self):
 

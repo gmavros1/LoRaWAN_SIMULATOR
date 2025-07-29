@@ -3,7 +3,7 @@ import math
 def compute_payload_size(payload: dict) -> int:
     payload_size: int = 0
     for value in payload.values():
-        payload_size += len(value.encode('utf-8'))
+        payload_size += len(str(value).encode('utf-8'))
 
     return payload_size
 
@@ -72,3 +72,6 @@ def sync_transmit_receive(devices):
     return tx_list + other                   # new ordering
 
 # print(calculate_received_power(2000, 14))
+# payload = {"control": "JOIN_ACCEPT", "SF": 12}
+# header = {"destination": "00000"}
+# print(compute_payload_size(payload))

@@ -24,3 +24,12 @@ class SensorNode:
 
         # Function que. The next action of sensor is defined
         self.action = Action()
+
+        # CLASS A PROTOCOL, PRESENTED IN ALL CLASSES
+        self.receiving_windows_enabled: bool = False
+        self.RECEIVE_DELAY_1: int = 5000
+        self.RECEIVE_DELAY_2: int = 1000
+        self.joined_to_network: bool = False # Default value
+
+        # The network where the device has joined
+        self.joined_network_id = None

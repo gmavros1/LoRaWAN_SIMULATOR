@@ -1,99 +1,45 @@
 {
   "Nodes": [
     {
-      "ID": "1",
+      "ID": "1-end",
       "Location": {
         "x": 947.75,
-        "y": 150.17
+        "y": 1000.17
       },
-      "default_sf": 7,
+      "default_sf": 12,
+      "default_channel": 1
+    },
+        {
+      "ID": "2-end",
+      "Location": {
+        "x": 200.75,
+        "y": 1000.17
+      },
+      "default_sf": 12,
       "default_channel": 1
     },
     {
-      "ID": "2",
+      "ID": "3-end",
       "Location": {
-        "x": 105.43,
-        "y": 620.42
+        "x": 947.75,
+        "y": 1000.17
       },
-      "default_sf": 7,
+      "default_sf": 12,
       "default_channel": 1
     },
     {
-      "ID": "3",
+      "ID": "4-end",
       "Location": {
-        "x": -457.7,
-        "y": -922.51
+        "x": 3000.75,
+        "y": 300.17
       },
-      "default_sf": 7,
-      "default_channel": 1
-    },
-    {
-      "ID": "4",
-      "Location": {
-        "x": 968.52,
-        "y": 588.82
-      },
-      "default_sf": 7,
-      "default_channel": 1
-    },
-    {
-      "ID": "5",
-      "Location": {
-        "x": -560.79,
-        "y": -18.88
-      },
-      "default_sf": 7,
-      "default_channel": 1
-    },
-    {
-      "ID": "6",
-      "Location": {
-        "x": 61.76,
-        "y": 185.46
-      },
-      "default_sf": 7,
-      "default_channel": 1
-    },
-    {
-      "ID": "7",
-      "Location": {
-        "x": -929.07,
-        "y": -269.55
-      },
-      "default_sf": 7,
-      "default_channel": 1
-    },
-    {
-      "ID": "8",
-      "Location": {
-        "x": -607.73,
-        "y": 1004.51
-      },
-      "default_sf": 7,
-      "default_channel": 1
-    },
-    {
-      "ID": "9",
-      "Location": {
-        "x": -878.29,
-        "y": -670.08
-      },
-      "default_sf": 7,
-      "default_channel": 1
-    },
-    {
-      "ID": "10",
-      "Location": {
-        "x": -136.92,
-        "y": -1069.35
-      },
-      "default_sf": 7,
+      "default_sf": 12,
       "default_channel": 1
     }
   ],
   "Gateways": [
     {
-      "ID": "1",
+      "ID": "1-gw",
       "Location": {
         "x": 0,
         "y": 0

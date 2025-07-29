@@ -5,6 +5,7 @@ import Utils.Computations as cmp
 import Wireless.signals
 from Hardware.LoRaModule import sleep
 from Hardware.SensorNode import SensorNode
+import random
 
 class LoRaWANNode(SensorNode):
 
@@ -12,10 +13,6 @@ class LoRaWANNode(SensorNode):
         super().__init__(node_id, wurx_json, lora_json, position)
         self.event_generator: Utils.TrafficModel.TrafficModel = Utils.TrafficModel.TrafficModel()
         self.action.executable, self.action.args = sleep, []
-        self.receiving_windows_enabled: bool = False
-        self.RECEIVE_DELAY_1: int = 5000
-        self.RECEIVE_DELAY_2: int = 1000
-        self.joined_to_network: bool = False # Default value
 
     def receive_delay_1(self):
         # print("RX DELAY 1")
@@ -28,6 +25,16 @@ class LoRaWANNode(SensorNode):
         else:
             return None, None
 
+    def contention_window_delay(self):
+        # print("RX DELAY 1")
+        time: int = 50000 # contention delay initialized to 50 sec
+        signal, _ = self.lora.sleep_delay(time)
+        if signal == Hardware.EVENTS.ClassA.DELAY_START:
+            return Hardware.EVENTS.ClassA.CONTENTION_WINDOW_START, None
+        elif signal == Hardware.EVENTS.ClassA.DELAY_END:
+            return Hardware.EVENTS.ClassA.CONTENTION_WINDOW_END, None
+        else:
+            return None, None
 
     def receive_delay_2(self):
         # print("RX DELAY 2")
@@ -54,7 +61,6 @@ class LoRaWANNode(SensorNode):
                 self.lora.counter = None # Now it doesn't depend on time
             return signal_receiver, None
 
-
     def rx_2(self, environment):
         # print("RX 2")
         timeout = int(cmp.preamble_time(self.lora.SF))
@@ -68,6 +74,22 @@ class LoRaWANNode(SensorNode):
             if self.lora.RX_Buffer:
                 self.lora.counter = None # Now it doesn't depend on time
             return signal_receiver, None
+
+    def join_packet_generation(self, time):
+        payload = {"control": "JOIN_REQUEST", "PADDING": "000DD0"}
+        header = {"destination": "00000"}
+        return self.lora.generate_packet(time, payload, header)
+
+    def decode_join_accept(self):
+        if self.lora.TX_Buffer:
+            packet_received = self.lora.TX_Buffer.pop()
+            if packet_received.Payload["control"] == "JOIN_ACCEPT" and packet_received.Destination == self.lora.ID:
+                # successfully joined the network
+                self.joined_to_network = True
+                self.lora.SF = packet_received.Payload["SF"]
+                return Hardware.EVENTS.ClassA.JOIN_ACCEPT_SUCCESS, None
+
+        return Hardware.EVENTS.ClassA.JOIN_ACCEPT_FAILED, None
 
     def protocol_driver(self, interrupt: Hardware.EVENTS.ClassA, time: int,
                         environment: Physics.Environment.Environment):
@@ -104,7 +126,48 @@ class LoRaWANNode(SensorNode):
             if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
                 self.action.executable, self.action.args = sleep, []
 
+    def join_driver(self, interrupt: Hardware.EVENTS.ClassA, time: int,
+                        environment: Physics.Environment.Environment):
 
+        # Send Join Request - 18 bytes
+        if self.action.executable == sleep and not self.joined_to_network and random.uniform(0, 1) < 0.00001:
+            self.action.executable, self.action.args = self.join_packet_generation, [time]
 
-    def join_driver(self):
-        pass
+        if self.action.executable == self.join_packet_generation and interrupt == Hardware.EVENTS.ClassA.GENERATE_PACKET:
+            self.action.executable, self.action.args = self.lora.transmit_packet, []
+
+        # Wait for 5 sec and start receiving
+        if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
+            self.action.executable, self.action.args = self.receive_delay_1, []
+
+        if self.action.executable == self.receive_delay_1 and interrupt == Hardware.EVENTS.ClassA.RX1_DELAY_END:
+            self.action.executable, self.action.args = self.rx_1, [environment]
+
+        # RECEIVING AT RX1 THE JOIN ACCEPT
+        if self.action.executable == self.rx_1 and interrupt == Hardware.EVENTS.ClassA.PACKET_DECODED:
+            self.action.executable, self.action.args = self.decode_join_accept, []
+
+        # If not received wait 1 sec
+        if self.action.executable == self.rx_1 and (
+                interrupt == Hardware.EVENTS.ClassA.RX1_END or interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED):
+            self.action.executable, self.action.args = self.receive_delay_2, []
+
+        if self.action.executable == self.receive_delay_2 and interrupt == Hardware.EVENTS.ClassA.RX2_DELAY_END:
+            self.action.executable, self.action.args = self.rx_2, [environment]
+
+        # CHECK FOR RECEIVED PACKETS AFTER RX2
+        if self.action.executable == self.rx_2 and (interrupt == Hardware.EVENTS.ClassA.PACKET_DECODED or
+                                                    interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED or
+                                                    interrupt == Hardware.EVENTS.ClassA.RX2_END):
+            self.action.executable, self.action.args = self.decode_join_accept, []
+
+        # If received add gateway
+        # Change sf according to gateways suggestions
+        if self.action.executable == self.decode_join_accept and interrupt == Hardware.EVENTS.ClassA.JOIN_ACCEPT_SUCCESS:
+            self.action.executable, self.action.args = sleep, []
+        elif self.action.executable == self.decode_join_accept and interrupt == Hardware.EVENTS.ClassA.JOIN_ACCEPT_FAILED:
+            self.action.executable, self.action.args = self.contention_window_delay, []
+
+        # Again after contention window
+        if self.action.executable == self.contention_window_delay and interrupt == Hardware.EVENTS.ClassA.CONTENTION_WINDOW_END:
+            self.action.executable, self.action.args = self.join_packet_generation, [time]

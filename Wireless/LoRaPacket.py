@@ -15,6 +15,7 @@ class LoRaPacket:
         # Helper ----------
         self.sf: int = 0
         self.channel: int = 0
+        self.received_power = 0
 
     def set_reception_time(self, time: int):
         self.ReceptionTime = time
