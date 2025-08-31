@@ -27,7 +27,7 @@ class LoRaWANNode(SensorNode):
 
     def contention_window_delay(self):
         # print("RX DELAY 1")
-        time: int = 50000 # contention delay initialized to 50 sec
+        time: int = Utils.Computations.spaced_delay_from_id(self.lora.ID) # contention delay initialized to 50 sec
         signal, _ = self.lora.sleep_delay(time)
         if signal == Hardware.EVENTS.ClassA.DELAY_START:
             return Hardware.EVENTS.ClassA.CONTENTION_WINDOW_START, None
@@ -86,6 +86,7 @@ class LoRaWANNode(SensorNode):
             if packet_received.Payload["control"] == "JOIN_ACCEPT" and packet_received.Destination == self.lora.ID:
                 # successfully joined the network
                 self.joined_to_network = True
+                print(self.lora.ID + " DONE")
                 self.lora.SF = packet_received.Payload["SF"]
                 return Hardware.EVENTS.ClassA.JOIN_ACCEPT_SUCCESS, None
 
@@ -129,8 +130,11 @@ class LoRaWANNode(SensorNode):
     def join_driver(self, interrupt: Hardware.EVENTS.ClassA, time: int,
                         environment: Physics.Environment.Environment):
 
+        if self.action.executable == sleep and not self.joined_to_network:
+            self.action.executable, self.action.args = self.lora.sleep_delay, [Utils.Computations.spaced_delay_from_id(self.lora.ID)]
+
         # Send Join Request - 18 bytes
-        if self.action.executable == sleep and not self.joined_to_network and random.uniform(0, 1) < 0.00001:
+        if self.action.executable == self.lora.sleep_delay and interrupt == Hardware.EVENTS.ClassA.DELAY_END:
             self.action.executable, self.action.args = self.join_packet_generation, [time]
 
         if self.action.executable == self.join_packet_generation and interrupt == Hardware.EVENTS.ClassA.GENERATE_PACKET:
@@ -151,6 +155,7 @@ class LoRaWANNode(SensorNode):
         if self.action.executable == self.rx_1 and (
                 interrupt == Hardware.EVENTS.ClassA.RX1_END or interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED):
             self.action.executable, self.action.args = self.receive_delay_2, []
+            self.lora.clear_receiver_from_interrupted_packets()
 
         if self.action.executable == self.receive_delay_2 and interrupt == Hardware.EVENTS.ClassA.RX2_DELAY_END:
             self.action.executable, self.action.args = self.rx_2, [environment]
@@ -167,6 +172,7 @@ class LoRaWANNode(SensorNode):
             self.action.executable, self.action.args = sleep, []
         elif self.action.executable == self.decode_join_accept and interrupt == Hardware.EVENTS.ClassA.JOIN_ACCEPT_FAILED:
             self.action.executable, self.action.args = self.contention_window_delay, []
+            self.lora.clear_receiver_from_interrupted_packets()
 
         # Again after contention window
         if self.action.executable == self.contention_window_delay and interrupt == Hardware.EVENTS.ClassA.CONTENTION_WINDOW_END:

@@ -64,7 +64,7 @@ class LoRaModule:
         # Statistics
         self.generated_packets += 1
 
-        print("GENERATE PACKET")
+        # print("GENERATE PACKET")
         return Hardware.EVENTS.ClassA.GENERATE_PACKET, None
 
     def transmit_packet(self):
@@ -81,7 +81,7 @@ class LoRaModule:
 
             # Return Packet and Event
             if wireless_lora_signal.lora_packet.IsFirstPacket:
-                print("TRANSMIT PACKET")
+                # print("TRANSMIT PACKET")
                 return Hardware.EVENTS.ClassA.TRANSMISSION_START, wireless_lora_signal
             else:
                 return None, wireless_lora_signal
@@ -154,8 +154,8 @@ class LoRaModule:
             if segments_required - 1 < len(pkt) < segments_required + 1:
                 self.TX_Buffer.append(pkt[0]) # STORE FOR FORWARD
                 # self.RX_Buffer = []
-                print("SUCCESSFULLY DECODED")
-                print("RECEPTION END")
+                # print("SUCCESSFULLY DECODED")
+                # print("RECEPTION END")
 
                 # Statistics
                 self.successfully_received_packets.append(pkt[0].ID)
@@ -163,8 +163,8 @@ class LoRaModule:
                 return Hardware.EVENTS.ClassA.PACKET_DECODED, None
             else:
                 # self.RX_Buffer = []
-                print("DECODING ERROR")
-                print("RECEPTION END")
+                # print("DECODING ERROR")
+                # print("RECEPTION END")
                 return Hardware.EVENTS.ClassA.PACKET_NON_DECODED, None
 
     # For Example for RX1 and RX2 like Delays

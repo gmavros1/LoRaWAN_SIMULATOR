@@ -108,7 +108,7 @@ class AlohaValidation:
         plt.title(f"Throughput vs Offered Load {title_suffix}")
         plt.xlabel("Offered load  $G$")
         plt.ylabel("Throughput  $S$")
-        plt.ylim(top=0.5)
+        # plt.ylim(top=0.5)
         plt.grid(True)
         plt.legend()
         plt.tight_layout()

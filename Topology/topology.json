@@ -3,17 +3,17 @@
     {
       "ID": "1-end",
       "Location": {
-        "x": 947.75,
-        "y": 1000.17
+        "x": 6318.31,
+        "y": 1001.16
       },
       "default_sf": 12,
       "default_channel": 1
     },
-        {
+    {
       "ID": "2-end",
       "Location": {
-        "x": 200.75,
-        "y": 1000.17
+        "x": 702.86,
+        "y": 4136.17
       },
       "default_sf": 12,
       "default_channel": 1
@@ -21,8 +21,8 @@
     {
       "ID": "3-end",
       "Location": {
-        "x": 947.75,
-        "y": 1000.17
+        "x": -3051.34,
+        "y": -6150.08
       },
       "default_sf": 12,
       "default_channel": 1
@@ -30,8 +30,62 @@
     {
       "ID": "4-end",
       "Location": {
-        "x": 3000.75,
-        "y": 300.17
+        "x": 6456.79,
+        "y": 3925.48
+      },
+      "default_sf": 12,
+      "default_channel": 1
+    },
+    {
+      "ID": "5-end",
+      "Location": {
+        "x": 5105.63,
+        "y": 967.21
+      },
+      "default_sf": 12,
+      "default_channel": 1
+    },
+    {
+      "ID": "6-end",
+      "Location": {
+        "x": -3738.58,
+        "y": -125.84
+      },
+      "default_sf": 12,
+      "default_channel": 1
+    },
+    {
+      "ID": "7-end",
+      "Location": {
+        "x": 411.75,
+        "y": 1236.43
+      },
+      "default_sf": 12,
+      "default_channel": 1
+    },
+    {
+      "ID": "8-end",
+      "Location": {
+        "x": -6193.82,
+        "y": -1797.0
+      },
+      "default_sf": 12,
+      "default_channel": 1
+    },
+    {
+      "ID": "9-end",
+      "Location": {
+        "x": -3180.62,
+        "y": -1997.96
+      },
+      "default_sf": 12,
+      "default_channel": 1
+    },
+    {
+      "ID": "10-end",
+      "Location": {
+        "x": 7191.47,
+        "y": 293.81
       },
       "default_sf": 12,
       "default_channel": 1

@@ -1,4 +1,5 @@
 import math
+import hashlib
 
 def compute_payload_size(payload: dict) -> int:
     payload_size: int = 0
@@ -33,9 +34,12 @@ def calculate_received_power(distance:float, transmission_power: int, shadowing_
     # Constants - sensors-22-03518-v3.pdf - reference
     PLd0 = 37  # Reference path loss at the reference distance (d0)
     d0 = 1.0  # Reference distance (1 meter)
-    alpha = 3.0  # Path loss exponent - (2-4) - urban enviroments ~ 3
+    alpha = 2.0  # Path loss exponent - (2-4) - urban enviroments ~ 3
     # Calculate the path loss without shadowing
-    PL = PLd0 + 10 * alpha * math.log10(distance / d0)
+    try:
+        PL = PLd0 + 10 * alpha * math.log10(distance / d0)
+    except:
+        print(distance)
     # Generate a random value for shadowing
     shadowing = shadowing_std_dev
     # Calculate the total path loss with shadowing
@@ -70,6 +74,14 @@ def sync_transmit_receive(devices):
             other.append(dev)
 
     return tx_list + other                   # new ordering
+
+# Get unique delays for nodes for join request transmission
+def spaced_delay_from_id(node_id: str, step=1000) -> int:
+    # Hash the string ID into a large integer
+    h = int(hashlib.sha256(node_id.encode()).hexdigest(), 16)
+    # Use the hash to select a slot
+    slot = h % 100  # supports up to 1000 nodes
+    return slot * step
 
 # print(calculate_received_power(2000, 14))
 # payload = {"control": "JOIN_ACCEPT", "SF": 12}

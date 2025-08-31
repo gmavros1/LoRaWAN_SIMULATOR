@@ -15,7 +15,7 @@ class TopologyGenerator:
         self.MAX_RADIUS_M = MAX_RADIOUS_M  # furthest node from gateway
         self.DEFAULT_SF = DEFAULT_SF  # initial spreading factor
         self.DEFAULT_CHANNEL = DEFAULT_CHANNEL
-        self.JSON_OUT = Path("topology.json")
+        self.JSON_OUT = Path("Topology/topology.json")
 
     @staticmethod
     def default_sf():
@@ -45,7 +45,7 @@ class TopologyGenerator:
             if all(math.hypot(x-n["Location"]["x"], y-n["Location"]["y"]) >= self.MIN_DIST_M
                    for n in nodes):
                 nodes.append({
-                    "ID": str(len(nodes)+1),
+                    "ID": str(len(nodes)+1) + "-end",
                     "Location": {"x": round(x, 2), "y": round(y, 2)},
                     "default_sf": self.DEFAULT_SF,
                     "default_channel": self.DEFAULT_CHANNEL
@@ -55,7 +55,7 @@ class TopologyGenerator:
         # Gateway at origin
         # ----------------------------------------------------------------------
         gateways = [{
-            "ID": "1",
+            "ID": "1-gw",
             "Location": {"x": 0, "y": 0}
         }]
 

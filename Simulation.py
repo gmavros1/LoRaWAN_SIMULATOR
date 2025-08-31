@@ -61,6 +61,8 @@ class Simulation:
 
 
     def run(self):
+        print("SIMULATION \n")
+
         for i in tqdm(range(self.simulation_time), desc="Simulating") :
 
             for device in Utils.Computations.sync_transmit_receive(self.Devices):
@@ -72,16 +74,32 @@ class Simulation:
             # print(self.environment)
             self.environment.tick()
 
+    def check_if_all_nodes_have_joined(self):
+        end_devices = [item for item in self.Devices if not isinstance(item, LoRaWANGateway)]
+
+        for d in end_devices:
+            if not d.joined_to_network:
+                return False
+
+        return True
+
     def initialize_network(self):
+        print("JOIN PROCESS \n")
+
         for device in self.Devices:
             print(str(device.lora.ID) + " " +  str(device.lora.SF))
 
-        for i in range(500000 * len(self.Devices)) :
+        i = 0
+        while True :
             for device in Utils.Computations.sync_transmit_receive(self.Devices):
                 interrupt, wireless_signal = device.action.executable(*device.action.args)
                 self.environment.add_packet(wireless_signal)
                 self.environment.add_wake_up_beacon(wireless_signal)
                 device.join_driver(interrupt, i, self.environment)
+
+            i += 1
+            if self.check_if_all_nodes_have_joined():
+                break
 
             # print(self.environment)
             self.environment.tick()
