@@ -27,7 +27,7 @@ class LoRaWANNode(SensorNode):
 
     def contention_window_delay(self):
         # print("RX DELAY 1")
-        time: int = Utils.Computations.spaced_delay_from_id(self.lora.ID) # contention delay initialized to 50 sec
+        time: int = Utils.Computations.spaced_delay_from_id(self.lora.ID) + random.randint(0, 5000) # contention delay initialized to 50 sec
         signal, _ = self.lora.sleep_delay(time)
         if signal == Hardware.EVENTS.ClassA.DELAY_START:
             return Hardware.EVENTS.ClassA.CONTENTION_WINDOW_START, None
