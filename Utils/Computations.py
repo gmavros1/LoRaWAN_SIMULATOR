@@ -34,7 +34,7 @@ def calculate_received_power(distance:float, transmission_power: int, shadowing_
     # Constants - sensors-22-03518-v3.pdf - reference
     PLd0 = 37  # Reference path loss at the reference distance (d0)
     d0 = 1.0  # Reference distance (1 meter)
-    alpha = 2.0  # Path loss exponent - (2-4) - urban enviroments ~ 3
+    alpha = 2.5  # Path loss exponent - (2-4) - urban enviroments ~ 3
     # Calculate the path loss without shadowing
     try:
         PL = PLd0 + 10 * alpha * math.log10(distance / d0)

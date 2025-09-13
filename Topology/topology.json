@@ -3,8 +3,8 @@
     {
       "ID": "1-end",
       "Location": {
-        "x": 6318.31,
-        "y": 1001.16
+        "x": 9477.46,
+        "y": 1501.74
       },
       "default_sf": 12,
       "default_channel": 1
@@ -12,8 +12,8 @@
     {
       "ID": "2-end",
       "Location": {
-        "x": 702.86,
-        "y": 4136.17
+        "x": 1054.29,
+        "y": 6204.25
       },
       "default_sf": 12,
       "default_channel": 1
@@ -21,8 +21,8 @@
     {
       "ID": "3-end",
       "Location": {
-        "x": -3051.34,
-        "y": -6150.08
+        "x": -4577.02,
+        "y": -9225.12
       },
       "default_sf": 12,
       "default_channel": 1
@@ -30,8 +30,8 @@
     {
       "ID": "4-end",
       "Location": {
-        "x": 6456.79,
-        "y": 3925.48
+        "x": 9685.18,
+        "y": 5888.22
       },
       "default_sf": 12,
       "default_channel": 1
@@ -39,8 +39,8 @@
     {
       "ID": "5-end",
       "Location": {
-        "x": 5105.63,
-        "y": 967.21
+        "x": 7658.45,
+        "y": 1450.82
       },
       "default_sf": 12,
       "default_channel": 1
@@ -48,8 +48,8 @@
     {
       "ID": "6-end",
       "Location": {
-        "x": -3738.58,
-        "y": -125.84
+        "x": -5607.87,
+        "y": -188.77
       },
       "default_sf": 12,
       "default_channel": 1
@@ -57,8 +57,8 @@
     {
       "ID": "7-end",
       "Location": {
-        "x": 411.75,
-        "y": 1236.43
+        "x": 617.62,
+        "y": 1854.65
       },
       "default_sf": 12,
       "default_channel": 1
@@ -66,8 +66,8 @@
     {
       "ID": "8-end",
       "Location": {
-        "x": -6193.82,
-        "y": -1797.0
+        "x": -9290.73,
+        "y": -2695.5
       },
       "default_sf": 12,
       "default_channel": 1
@@ -75,8 +75,8 @@
     {
       "ID": "9-end",
       "Location": {
-        "x": -3180.62,
-        "y": -1997.96
+        "x": -4770.93,
+        "y": -2996.94
       },
       "default_sf": 12,
       "default_channel": 1
@@ -84,8 +84,8 @@
     {
       "ID": "10-end",
       "Location": {
-        "x": 7191.47,
-        "y": 293.81
+        "x": 10787.2,
+        "y": 440.72
       },
       "default_sf": 12,
       "default_channel": 1
