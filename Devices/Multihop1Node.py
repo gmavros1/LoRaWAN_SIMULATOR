@@ -31,28 +31,27 @@ class Multihop1Node(LoRaWANNode):
         Here C_CHANNEL and hop_depth are included in the payload.
     """
     def waiting_for_join_requests(self, environment, time):
-        # timeout = 60000 # Time waiting to receive join accept answers
-        # signal_timer, _ = self.lora.sleep_delay(timeout)  # Used as timer
-        # signal_receiver, _ = self.lora.receive_packets_partial(environment)
-        #
-        # # See if there is any join request packet
-        # if signal_receiver == Hardware.EVENTS.ClassA.PACKET_DECODED:
-        #     received_packet: LoRaPacket = self.lora.TX_Buffer.pop()
-        #     # If wur communication could be established
-        #     if received_packet.received_power >= self.wurx.Sensitivity_dBm:
-        #         payload = {"control": "JOIN_ACCEPT", "c_channel": self.cluster_channel, "h_depth": self.hop_depth + 1}
-        #         header = {"destination": "00000"}
-        #
-        #         self.lora.generate_packet(time, payload, header)
-        #         self.lora.TX_Buffer[-1].Destination = received_packet.Source
-        #
-        #         # If packet is correct send packet.decoded to send join_accept after sensing
-        #         # if not do not send anything. It will remain to hear
-        # else:
-        #
-        #
-        # if signal_timer == Hardware.EVENTS.ClassA.DELAY_END:
-        #     return None, signal_timer
+        timeout = 60000 # Time waiting to receive join accept answers
+        signal_timer, _ = self.lora.sleep_delay(timeout)  # Used as timer
+        signal_receiver, _ = self.lora.receive_packets_partial(environment)
+
+        # See if there is any join request packet
+        if signal_receiver == Hardware.EVENTS.ClassA.PACKET_DECODED:
+            received_packet: LoRaPacket = self.lora.TX_Buffer.pop()
+            # If wur communication could be established
+            if received_packet.received_power >= self.wurx.Sensitivity_dBm:
+                payload = {"control": "JOIN_ACCEPT", "c_channel": self.cluster_channel, "h_depth": self.hop_depth + 1}
+                header = {"destination": "00000"}
+                self.lora.generate_packet(time, payload, header)
+                self.lora.TX_Buffer[-1].Destination = received_packet.Source # Assign dst for reply
+                return Hardware.EVENTS.ClassA.GENERATE_PACKET, None # Send Reply packet
+        elif signal_receiver == Hardware.EVENTS.ClassA.PACKET_NON_DECODED:
+            # If a packet has not been decoded properly, make the counter none
+            self.lora.counter = None # --> reset -- Look for garbage's
+            return Hardware.EVENTS.ClassA.PACKET_NON_DECODED, None # Listen again
+
+        if signal_timer == Hardware.EVENTS.ClassA.DELAY_END:
+            return Hardware.EVENTS.ClassA.DELAY_END, None # Then go to sleep
         return None, None
 
 
@@ -116,9 +115,7 @@ class Multihop1Node(LoRaWANNode):
             self.lora.TX_Buffer = [] # CLEAR DECODED PACKETS
 
         # If not received wait 1 sec
-        if self.action.executable == self.rx_1 and (
-                interrupt == Hardware.EVENTS.ClassA.RX1_END or
-                interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED):
+        if self.action.executable == self.rx_1 and (interrupt == Hardware.EVENTS.ClassA.RX1_END or interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED):
             self.action.executable, self.action.args = self.contention_window_delay, []
             self.lora.clear_receiver_from_interrupted_packets()
 
@@ -140,3 +137,14 @@ class Multihop1Node(LoRaWANNode):
         if self.action.executable == self.lora.sleep_delay and interrupt == Hardware.EVENTS.ClassA.DELAY_END and self.joined_to_network:
             self.action.executable, self.action.args = self.waiting_for_join_requests, [environment, time]
 
+        # If it has a failure in decoding, it means that a request will probably re-transmitted. SO it remain opened
+        if self.action.executable == self.waiting_for_join_requests and interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED:
+            self.action.executable, self.action.args = self.waiting_for_join_requests, [environment, time]
+
+        # A join request received, so, a join response will be sent after sensing @TODO:SENSING
+        if self.action.executable == self.waiting_for_join_requests and interrupt == Hardware.EVENTS.ClassA.GENERATE_PACKET:
+            self.action.executable, self.action.args = self.lora.transmit_packet, []
+
+        # Joining request for this Node is over
+        if self.action.executable == self.waiting_for_join_requests and interrupt == Hardware.EVENTS.ClassA.DELAY_END:
+            self.action.executable, self.action.args = sleep, []
