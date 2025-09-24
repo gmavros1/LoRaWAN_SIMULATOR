@@ -20,6 +20,7 @@ class Multihop1Node(LoRaWANNode):
         self.cluster_channel: int = -1 # -1 Indicates that it is not assigned to a cluster
         self.relay_node:str = ""
         self.hop_depth:int = -1
+        self.sensing_counter = None
 
     def idle_listening_with_timeout(self, timeout, environment):
         pass
@@ -53,6 +54,28 @@ class Multihop1Node(LoRaWANNode):
         if signal_timer == Hardware.EVENTS.ClassA.DELAY_END:
             return Hardware.EVENTS.ClassA.DELAY_END, None # Then go to sleep
         return None, None
+
+    def sensing_mechanism(self, environment):
+        signal_timer, _ = self.lora.sleep_delay(self.sensing_counter)  # Used as timer
+
+        packets_in_channel_sf = environment.lora_packet_over_air[self.lora.Channel - 1][self.lora.SF - 7].copy()  # To have 1st indexed as 0
+        for i in range(len(packets_in_channel_sf) - 1, -1, -1):
+            rx_power = Utils.Computations.calculate_received_power(Utils.Computations.distance(
+                packets_in_channel_sf[i].signal.source_location, self.location),
+                packets_in_channel_sf[i].signal.tx_power)
+
+            if rx_power < self.lora.RSSI:
+                del packets_in_channel_sf[i]
+                continue
+
+        if len(packets_in_channel_sf) > 0:
+            self.sensing_counter = None
+            return Hardware.EVENTS.ClassA.CHANNEL_ACTIVITY_DETECTED, None
+        elif signal_timer == Hardware.EVENTS.ClassA.DELAY_END:
+            self.sensing_counter = None
+            return Hardware.EVENTS.ClassA.CHANNEL_CLEAR, None
+        else:
+            return None, None
 
 
     """
@@ -137,13 +160,21 @@ class Multihop1Node(LoRaWANNode):
         if self.action.executable == self.lora.sleep_delay and interrupt == Hardware.EVENTS.ClassA.DELAY_END and self.joined_to_network:
             self.action.executable, self.action.args = self.waiting_for_join_requests, [environment, time]
 
-        # If it has a failure in decoding, it means that a request will probably re-transmitted. SO it remain opened
+        # If it has a failure in decoding, it means that a request will pr1obably re-transmitted. SO it remain opened
         if self.action.executable == self.waiting_for_join_requests and interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED:
             self.action.executable, self.action.args = self.waiting_for_join_requests, [environment, time]
 
-        # A join request received, so, a join response will be sent after sensing @TODO:SENSING
+        # A join request received, so, a join response will be sent after sensing
         if self.action.executable == self.waiting_for_join_requests and interrupt == Hardware.EVENTS.ClassA.GENERATE_PACKET:
+            self.sensing_counter = random.randint(0, 100)
+            self.action.executable, self.action.args = self.sensing_mechanism, [environment]
+
+        # If channel is clear, so a join accept could be sent
+        if self.action.executable == self.sensing_mechanism and interrupt == Hardware.EVENTS.ClassA.CHANNEL_CLEAR:
             self.action.executable, self.action.args = self.lora.transmit_packet, []
+
+        if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
+            self.action.executable, self.action.args = sleep, []
 
         # Joining request for this Node is over
         if self.action.executable == self.waiting_for_join_requests and interrupt == Hardware.EVENTS.ClassA.DELAY_END:
