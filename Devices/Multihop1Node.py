@@ -13,8 +13,8 @@ class Multihop1Node(LoRaWANNode):
 
     def __init__(self, node_id: str, wurx_json: str, lora_json: str, position: Wireless.signals.Location):
         super().__init__(node_id, wurx_json, lora_json, position)
-        self.event_generator: Utils.TrafficModel.TrafficModel = Utils.TrafficModel.TrafficModel()
-        self.action.executable, self.action.args = sleep, []
+        # self.event_generator: Utils.TrafficModel.TrafficModel = Utils.TrafficModel.TrafficModel()
+        # self.action.executable, self.action.args = sleep, []
 
         # PROTOCOL RELATED INFORMATION
         self.cluster_channel: int = -1 # -1 Indicates that it is not assigned to a cluster
@@ -39,6 +39,15 @@ class Multihop1Node(LoRaWANNode):
         # See if there is any join request packet
         if signal_receiver == Hardware.EVENTS.ClassA.PACKET_DECODED:
             received_packet: LoRaPacket = self.lora.TX_Buffer.pop()
+
+            # Only respond if we're properly joined (safety check)
+            if not self.joined_to_network or self.cluster_channel == -1:
+                return None, None
+
+            # Check if the received packet is a JOIN_REQUEST
+            if received_packet.Payload.get("control") != "JOIN_REQUEST":
+                return None, None  # Not a join request, ignore
+
             # If wur communication could be established
             if received_packet.received_power >= self.wurx.Sensitivity_dBm:
                 payload = {"control": "JOIN_ACCEPT", "c_channel": self.cluster_channel, "h_depth": self.hop_depth + 1}
@@ -80,6 +89,11 @@ class Multihop1Node(LoRaWANNode):
 
     """
         A node (already assigned), or a gw has been respond with a JOIN_ACCEPT.
+
+        Two types of JOIN_ACCEPT:
+        1. From Gateway: Contains "SF" field. Node becomes first-hop relay with hop_depth=1
+        2. From Relay Node: Contains "c_channel" and "h_depth" fields. Node joins existing cluster.
+
         PAYLOAD SHOULD CONTAIN COMMUNICATION CHANNEL (cluster_channel). SRC id should be used as relay node ID.
         If node, it means that the node is close enough to communicate with wur radio. This is checked during
         the JOIN_ACCEPT packet construction from the relay node.
@@ -91,10 +105,22 @@ class Multihop1Node(LoRaWANNode):
             if packet_received.Payload["control"] == "JOIN_ACCEPT" and packet_received.Destination == self.lora.ID:
                 # successfully joined the network
                 self.joined_to_network = True
-                self.cluster_channel = int(packet_received.Payload["c_channel"])
-                self.hop_depth = int(packet_received.Payload["h_depth"])
                 self.relay_node = packet_received.Source
-                print(self.lora.ID + " DONE")
+
+                # Check if JOIN_ACCEPT is from gateway (has "SF") or relay node (has "c_channel")
+                if "c_channel" in packet_received.Payload:
+                    # JOIN_ACCEPT from relay node - use provided cluster info
+                    self.cluster_channel = int(packet_received.Payload["c_channel"])
+                    self.hop_depth = int(packet_received.Payload["h_depth"])
+                else:
+                    # JOIN_ACCEPT from gateway - become first-hop relay node
+                    # Use suggested SF as cluster channel identifier
+                    suggested_sf = packet_received.Payload.get("SF", self.lora.SF)
+                    # self.cluster_channel = suggested_sf  # Use SF as cluster channel
+                    self.hop_depth = 1  # First hop from gateway
+                    self.lora.SF = suggested_sf  # Apply suggested SF
+
+                print(f"{self.lora.ID} JOINED: cluster_ch={self.cluster_channel}, hop={self.hop_depth}, relay={self.relay_node}")
                 return Hardware.EVENTS.ClassA.JOIN_ACCEPT_SUCCESS, None
         return Hardware.EVENTS.ClassA.JOIN_ACCEPT_FAILED, None
 
@@ -137,8 +163,21 @@ class Multihop1Node(LoRaWANNode):
             self.lora.clear_receiver_from_interrupted_packets()
             self.lora.TX_Buffer = [] # CLEAR DECODED PACKETS
 
-        # If not received wait 1 sec
+        # If not received in RX1 or packet corrupted, wait and open RX2
         if self.action.executable == self.rx_1 and (interrupt == Hardware.EVENTS.ClassA.RX1_END or interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED):
+            self.action.executable, self.action.args = self.receive_delay_2, []
+            self.lora.clear_receiver_from_interrupted_packets()
+
+        # Open RX2 window
+        if self.action.executable == self.receive_delay_2 and interrupt == Hardware.EVENTS.ClassA.RX2_DELAY_END:
+            self.action.executable, self.action.args = self.rx_2, [environment]
+
+        # Check for JOIN_ACCEPT in RX2 window
+        if self.action.executable == self.rx_2 and interrupt == Hardware.EVENTS.ClassA.PACKET_DECODED:
+            self.action.executable, self.action.args = self.decode_join_accept, []
+
+        # If RX2 also fails, enter contention window before retry
+        if self.action.executable == self.rx_2 and (interrupt == Hardware.EVENTS.ClassA.RX2_END or interrupt == Hardware.EVENTS.ClassA.PACKET_NON_DECODED):
             self.action.executable, self.action.args = self.contention_window_delay, []
             self.lora.clear_receiver_from_interrupted_packets()
 
@@ -169,13 +208,19 @@ class Multihop1Node(LoRaWANNode):
             self.sensing_counter = random.randint(0, 100)
             self.action.executable, self.action.args = self.sensing_mechanism, [environment]
 
+        # If channel has activity, wait and retry sensing
+        if self.action.executable == self.sensing_mechanism and interrupt == Hardware.EVENTS.ClassA.CHANNEL_ACTIVITY_DETECTED:
+            self.sensing_counter = random.randint(50, 150)  # Random backoff before retrying
+            self.action.executable, self.action.args = self.sensing_mechanism, [environment]
+
         # If channel is clear, so a join accept could be sent
         if self.action.executable == self.sensing_mechanism and interrupt == Hardware.EVENTS.ClassA.CHANNEL_CLEAR:
             self.action.executable, self.action.args = self.lora.transmit_packet, []
 
-        if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END:
-            self.action.executable, self.action.args = sleep, []
+        # After transmitting JOIN_ACCEPT, return to waiting for more join requests
+        if self.action.executable == self.lora.transmit_packet and interrupt == Hardware.EVENTS.ClassA.TRANSMISSION_END and self.joined_to_network:
+            self.action.executable, self.action.args = self.waiting_for_join_requests, [environment, time]
 
-        # Joining request for this Node is over
+        # Timeout while waiting for join requests - restart waiting after brief sleep
         if self.action.executable == self.waiting_for_join_requests and interrupt == Hardware.EVENTS.ClassA.DELAY_END:
-            self.action.executable, self.action.args = sleep, []
+            self.action.executable, self.action.args = self.lora.sleep_delay, [100]  # Brief 100ms sleep before restarting

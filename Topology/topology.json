@@ -3,92 +3,92 @@
     {
       "ID": "1-end",
       "Location": {
-        "x": 9477.46,
-        "y": 1501.74
+        "x": 5500.0,
+        "y": 0.0
       },
       "default_sf": 12,
-      "default_channel": 1
+      "default_channel": 1,
+      "cluster": 0
     },
     {
       "ID": "2-end",
       "Location": {
-        "x": 1054.29,
-        "y": 6204.25
+        "x": -5500.0,
+        "y": 0.0
       },
       "default_sf": 12,
-      "default_channel": 1
+      "default_channel": 1,
+      "cluster": 0
     },
     {
       "ID": "3-end",
       "Location": {
-        "x": -4577.02,
-        "y": -9225.12
+        "x": 6000.88,
+        "y": 1359.94
       },
       "default_sf": 12,
-      "default_channel": 1
+      "default_channel": 1,
+      "cluster": 0
     },
     {
       "ID": "4-end",
       "Location": {
-        "x": 9685.18,
-        "y": 5888.22
+        "x": 6000.88,
+        "y": -1359.94
       },
       "default_sf": 12,
-      "default_channel": 1
+      "default_channel": 1,
+      "cluster": 1
     },
     {
       "ID": "5-end",
       "Location": {
-        "x": 7658.45,
-        "y": 1450.82
+        "x": -6000.88,
+        "y": 1359.94
       },
       "default_sf": 12,
-      "default_channel": 1
+      "default_channel": 1,
+      "cluster": 1
     },
     {
       "ID": "6-end",
       "Location": {
-        "x": -5607.87,
-        "y": -188.77
+        "x": -6000.88,
+        "y": -1359.94
       },
       "default_sf": 12,
-      "default_channel": 1
+      "default_channel": 1,
+      "cluster": 1
     },
     {
       "ID": "7-end",
       "Location": {
-        "x": 617.62,
-        "y": 1854.65
+        "x": 6300.17,
+        "y": 2800.14
       },
       "default_sf": 12,
-      "default_channel": 1
+      "default_channel": 1,
+      "cluster": 2
     },
     {
       "ID": "8-end",
       "Location": {
-        "x": -9290.73,
-        "y": -2695.5
+        "x": 6300.17,
+        "y": -2800.14
       },
       "default_sf": 12,
-      "default_channel": 1
+      "default_channel": 1,
+      "cluster": 2
     },
     {
       "ID": "9-end",
       "Location": {
-        "x": -4770.93,
-        "y": -2996.94
+        "x": -6300.17,
+        "y": 2800.14
       },
       "default_sf": 12,
-      "default_channel": 1
-    },
-    {
-      "ID": "10-end",
-      "Location": {
-        "x": 10787.2,
-        "y": 440.72
-      },
-      "default_sf": 12,
-      "default_channel": 1
+      "default_channel": 1,
+      "cluster": 2
     }
   ],
   "Gateways": [

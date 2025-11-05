@@ -1,0 +1,21 @@
+{
+  "device": "Continuous-Time Analog Correlator Wake-Up Receiver",
+  "process_nm": 65,
+  "center_frequency_MHz": 450.8,
+  "bandwidth_MHz": 10,
+  "modulation": "RZ-OOK",
+  "chip_rate_kbps": 0.1,
+  "code_length_bits": 11,
+  "sensitivity_dBm": -109,
+  "latency_ms": 110,
+  "power_consumption_nW": 40,
+  "supply_voltage_V": 0.54,
+  "passive_gain_dB": 21,
+  "input_impedance_kOhm": 200,
+  "transmission_power_dBm": 14,
+  "addressing_method": "11-bit Barker code",
+  "false_alarm_rate_per_hour": "<=1",
+  "missed_detection_ratio_at_sensitivity": "1e-3",
+  "receiver_area_mm2": 0.15,
+  "notes": "Values from Mangal & Kinget 450 MHz CT analog-correlator WuRx; transmission power entry refers to wake beacon TX."
+}

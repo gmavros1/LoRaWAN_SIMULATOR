@@ -83,7 +83,14 @@ def spaced_delay_from_id(node_id: str, step=1000) -> int:
     slot = h % 100  # supports up to 1000 nodes
     return slot * step
 
-# print(calculate_received_power(2000, 14))
+# a in path loss model -> 2.5, shadowing -> 6.0
+# print(calculate_received_power(5500, 14)) # SF7 5500 km
+# print(calculate_received_power(7400, 14)) # SF8 7400 km
+# print(calculate_received_power(9800, 14)) # SF9 9800 km
+# print(calculate_received_power(12500, 14)) # SF10 12500 km
+# print(calculate_received_power(16000, 14)) # SF11 16000 km
+# print(calculate_received_power(20000, 14)) # SF12 20000 km
+# print(calculate_received_power(1500, 14)) # -109 dbm 1500 m
 # payload = {"control": "JOIN_ACCEPT", "SF": 12}
 # header = {"destination": "00000"}
 # print(compute_payload_size(payload))

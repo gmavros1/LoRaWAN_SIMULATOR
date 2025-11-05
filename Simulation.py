@@ -16,9 +16,10 @@ class Simulation:
             simulation_time,
             generation_prob,
             lora_config: str = "Configurations/LoRaNodeParameters.json",
-            wur_config: str = "Configurations/MangalKingetWuR.json",
+            wur_config: str = "Configurations/DUMPWuR_testing.json",
             devices_config: str = "Topology/topology.json",
-            device_type = LoRaWANNode
+            device_type = LoRaWANNode,
+            gateway_type = LoRaWANGateway
             ):
 
         self.LORA_NODE_PARAMETERS = lora_config
@@ -26,6 +27,7 @@ class Simulation:
         self.DEVICES_PARAMETERS = devices_config
         self.environment = Environment()
         self.device_type = device_type
+        self.gateway_type = gateway_type
         self.Devices = []
         self.simulation_time = simulation_time
         self.event_prob_generation = generation_prob
@@ -53,7 +55,7 @@ class Simulation:
         # GATEWAYS
         end_devices_config = data["Gateways"]
         for node_config in end_devices_config:
-            node = LoRaWANGateway(node_config["ID"],
+            node = self.gateway_type(node_config["ID"],
                                     self.WAKE_UP_RADIO_PARAMETERS,
                                     self.LORA_NODE_PARAMETERS,
                                     Location(node_config["Location"]["x"], node_config["Location"]["y"]), self.environment, self.NetworkServer)

@@ -6,12 +6,13 @@ from pathlib import Path
 
 class TopologyGenerator:
 
-    def __init__(self, N_NODES, MIN_DIST_M, MAX_RADIOUS_M, DEFAULT_SF, DEFAULT_CHANNEL):
+    def __init__(self, N_NODES, MAX_DIST_M, MAX_RADIOUS_M, DEFAULT_SF, DEFAULT_CHANNEL):
         # ----------------------------------------------------------------------
         # Parameters you can tweak
         # ----------------------------------------------------------------------
         self.N_NODES = N_NODES
-        self.MIN_DIST_M = MIN_DIST_M  # minimum node-to-node spacing
+        self.MIN_DIST_M = 500 # minimum node-to-node spacing
+        self.MAX_DIST_M = MAX_DIST_M  # maximum node-to-node spacing
         self.MAX_RADIUS_M = MAX_RADIOUS_M  # furthest node from gateway
         self.DEFAULT_SF = DEFAULT_SF  # initial spreading factor
         self.DEFAULT_CHANNEL = DEFAULT_CHANNEL
@@ -42,7 +43,8 @@ class TopologyGenerator:
         nodes = []
         while len(nodes) < self.N_NODES:
             x, y = self.random_point(self.MAX_RADIUS_M)
-            if all(math.hypot(x-n["Location"]["x"], y-n["Location"]["y"]) >= self.MIN_DIST_M
+            if all((math.hypot(x-n["Location"]["x"], y-n["Location"]["y"]) <= self.MAX_DIST_M
+                   and math.hypot(x-n["Location"]["x"], y-n["Location"]["y"]) <= self.MIN_DIST_M)
                    for n in nodes):
                 nodes.append({
                     "ID": str(len(nodes)+1) + "-end",
